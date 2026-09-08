@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초등/중등 필수 영단어 퀴즈 & 단어장</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --primary-light: #e8f5e9;
+            --primary-hover: #1b5e20;
+            --accent-color: #4caf50;
+            --bg-color: #f4f6f8;
+            --card-bg: #ffffff;
+            --text-dark: #2c3e50;
+            --text-muted: #6c757d;
+            --border-color: #e0e0e0;
+            --wrong-color: #e53935;
+            --correct-color: #2e7d32;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+
+        /* Navigation Controls */
+        .controls-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 12px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        select, button, input {
+            font-size: 0.95rem;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            background-color: #fff;
+            color: var(--text-dark);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 110px;
+            padding: 10px 8px;
+            border: 1px solid var(--border-color);
+            background: white;
+            color: var(--text-dark);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* View Sections */
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        /* Flashcard Quiz Mode */
+        .quiz-config {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .mode-btn.active {
+            background: var(--primary-light);
+            color: var(--primary-color);
+            border-color: var(--accent-color);
+        }
+
+        .flashcard-box {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 40px 20px;
+            text-align: center;
+            min-height: 260px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            border: 2px solid transparent;
+            user-select: none;
+        }
+
+        .flashcard-box:hover {
+            border-color: var(--accent-color);
+        }
+
+        .card-number {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .card-question {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+            word-break: keep-all;
+        }
+
+        .card-hint {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: #f0f0f0;
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+
+        .card-answer {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-top: 10px;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .audio-icon-btn {
+            background: var(--primary-light);
+            border: none;
+            color: var(--primary-color);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 12px;
+            transition: background 0.2s;
+        }
+
+        .audio-icon-btn:hover {
+            background: #c8e6c9;
+        }
+
+        .audio-icon-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-know {
+            flex: 1;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(46,125,50,0.3);
+        }
+
+        .btn-know:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-wrong {
+            flex: 1;
+            padding: 14px;
+            background-color: var(--wrong-color);
+            color: white;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(229,57,53,0.3);
+        }
+
+        .btn-wrong:hover {
+            background-color: #c62828;
+        }
+
+        .progress-container {
+            margin-top: 16px;
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Full Sheet View */
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .search-box {
+            padding: 8px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 260px;
+        }
+
+        .vocab-table-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        th {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .eng-word {
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 1.05rem;
+        }
+
+        .kor-mean {
+            color: #4a5568;
+            font-size: 0.98rem;
+        }
+
+        /* Incorrect List View */
+        .summary-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 16px;
+            background: var(--bg-color);
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-num {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .stat-num.wrong-cnt {
+            color: var(--wrong-color);
+        }
+
+        .stat-num.correct-cnt {
+            color: var(--correct-color);
+        }
+
+        .summary-btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .secondary-btn {
+            padding: 10px 18px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .secondary-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .primary-action-btn {
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .primary-action-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: none;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.3rem; }
+            .card-question { font-size: 1.6rem; }
+            .card-answer { font-size: 1.4rem; }
+            .action-btns { flex-direction: column; }
+            .nav-tabs { font-size: 0.85rem; }
+            th, td { padding: 10px 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>📖 영단어 암기 퀴즈</h1>
+        <p>1형식부터 5형식 문장 구조 어휘 학습</p>
+    </header>
+
+    <div class="container">
+        <!-- Control Panel -->
+        <div class="controls-card">
+            <div class="control-group">
+                <label for="unitSelect">단어장 유닛 선택</label>
+                <select id="unitSelect" onchange="changeUnit()">
+                    <option value="all">전체 (UNIT 01 ~ 05)</option>
+                    <option value="unit1">UNIT 01: 문장을 이루는 요소 (43단어)</option>
+                    <option value="unit2">UNIT 02: 1형식과 2형식 (47단어)</option>
+                    <option value="unit3">UNIT 03: 3형식 동사+목적어 (35단어)</option>
+                    <option value="unit4">UNIT 04: 4형식 동사+목적어+목적어 (34단어)</option>
+                    <option value="unit5">UNIT 05: 5형식 동사+목적어+보어 (35단어)</option>
+                </select>
+            </div>
+
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab('flashcard')">⚡ 암기 퀴즈</button>
+                <button class="tab-btn" onclick="switchTab('sheet')">📄 전체 단어장</button>
+                <button class="tab-btn" onclick="switchTab('wrong')">✏️ 오답 노트 <span id="wrongBadge">(0)</span></button>
+            </div>
+        </div>
+
+        <!-- 1. Flashcard / Quiz View -->
+        <div id="flashcardView" class="view-section active">
+            <div class="quiz-config">
+                <button id="modeKorToEng" class="mode-btn active" onclick="setQuizMode('korToEng')">한글 보고 영단어 맞추기</button>
+                <button id="modeEngToKor" class="mode-btn" onclick="setQuizMode('engToKor')">영단어 보고 한글 뜻 맞추기</button>
+            </div>
+
+            <div class="flashcard-box" id="flashcard" onclick="revealAnswer()">
+                <div class="card-number" id="cardNumber">1 / 43</div>
+                <div class="card-question" id="cardQuestion">감기에 걸리다</div>
+                <div class="card-hint" id="cardHint">👆 클릭하여 정답 확인하기</div>
+                <div class="card-answer" id="cardAnswer">have a cold</div>
+                <button class="audio-icon-btn" id="audioBtn" onclick="event.stopPropagation(); playCurrentAudio();" title="발음 듣기">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div class="action-btns">
+                <button class="btn-wrong" onclick="markAnswer(false)">❌ 몰라요 (오답 추가)</button>
+                <button class="btn-know" onclick="markAnswer(true)">⭕ 맞았어요</button>
+            </div>
+        </div>
+
+        <!-- 2. Full Vocab Sheet View -->
+        <div id="sheetView" class="view-section">
+            <div class="sheet-header">
+                <h3 id="sheetTitle" style="font-size: 1.1rem;">UNIT 01 문장을 이루는 요소</h3>
+                <input type="text" id="searchInput" class="search-box" placeholder="단어/뜻 검색..." oninput="filterSheet()">
+            </div>
+            <div class="vocab-table-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">번호</th>
+                            <th style="width: 40%;">어휘 (English)</th>
+                            <th style="width: 40%;">뜻 (Korean)</th>
+                            <th style="width: 10%; text-align: center;">발음</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vocabTableBody">
+                        <!-- JS Dynamic Insert -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 3. Incorrect List / Note View -->
+        <div id="wrongView" class="view-section">
+            <div class="summary-card">
+                <h2>✏️ 오답 노트 & 복습하기</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">퀴즈 중에 틀린 단어들을 모아보고 텍스트로 내보낼 수 있습니다.</p>
+
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <span class="stat-num wrong-cnt" id="totalWrongCount">0</span>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">틀린 단어</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num correct-cnt" id="totalCorrectCount">0</span>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">맞힌 단어</span>
+                    </div>
+                </div>
+
+                <div class="summary-btn-group">
+                    <button class="primary-action-btn" onclick="startWrongOnlyQuiz()" id="btnRetryWrong" disabled>🔥 틀린 단어만 다시 퀴즈</button>
+                    <button class="secondary-btn" onclick="downloadWrongListText()">📥 텍스트 파일 저장 (.txt)</button>
+                    <button class="secondary-btn" onclick="copyWrongListToClipboard()">📋 클립보드 복사</button>
+                </div>
+
+                <div class="vocab-table-card" style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">유닛</th>
+                                <th style="width: 40%;">어휘 (English)</th>
+                                <th style="width: 35%;">뜻 (Korean)</th>
+                                <th style="width: 10%; text-align: center;">발음</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wrongTableBody">
+                            <!-- JS Dynamic Insert -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="toast" class="toast">메시지</div>
+
+    <script>
+        // Vocabulary Full Master Data
+        const vocabData = {
+  "unit1": {
+    "title": "UNIT 01 문장을 이루는 요소",
+    "words": [
+      {
+        "id": 1,
+        "eng": "have a cold",
+        "kor": "감기에 걸리다"
+      },
+      {
+        "id": 2,
+        "eng": "Chinese",
+        "kor": "중국어"
+      },
+      {
+        "id": 3,
+        "eng": "floor",
+        "kor": "바닥"
+      },
+      {
+        "id": 4,
+        "eng": "dirty",
+        "kor": "더러운"
+      },
+      {
+        "id": 5,
+        "eng": "plate",
+        "kor": "접시"
+      },
+      {
+        "id": 6,
+        "eng": "take a picture",
+        "kor": "사진을 찍다"
+      },
+      {
+        "id": 7,
+        "eng": "start",
+        "kor": "시작하다"
+      },
+      {
+        "id": 8,
+        "eng": "garden",
+        "kor": "정원"
+      },
+      {
+        "id": 9,
+        "eng": "favorite",
+        "kor": "가장 좋아하는"
+      },
+      {
+        "id": 10,
+        "eng": "subject",
+        "kor": "과목"
+      },
+      {
+        "id": 11,
+        "eng": "basketball",
+        "kor": "농구"
+      },
+      {
+        "id": 12,
+        "eng": "market",
+        "kor": "시장"
+      },
+      {
+        "id": 13,
+        "eng": "at that time",
+        "kor": "그때"
+      },
+      {
+        "id": 14,
+        "eng": "carry",
+        "kor": "나르다"
+      },
+      {
+        "id": 15,
+        "eng": "question",
+        "kor": "문제; 질문"
+      },
+      {
+        "id": 16,
+        "eng": "fix",
+        "kor": "고치다"
+      },
+      {
+        "id": 17,
+        "eng": "brave",
+        "kor": "용감한"
+      },
+      {
+        "id": 18,
+        "eng": "exciting",
+        "kor": "신나는"
+      },
+      {
+        "id": 19,
+        "eng": "cleanly",
+        "kor": "깨끗하게"
+      },
+      {
+        "id": 20,
+        "eng": "musical",
+        "kor": "뮤지컬"
+      },
+      {
+        "id": 21,
+        "eng": "draw",
+        "kor": "그리다"
+      },
+      {
+        "id": 22,
+        "eng": "smart",
+        "kor": "똑똑한"
+      },
+      {
+        "id": 23,
+        "eng": "concert",
+        "kor": "콘서트"
+      },
+      {
+        "id": 24,
+        "eng": "band",
+        "kor": "밴드"
+      },
+      {
+        "id": 25,
+        "eng": "fireworks",
+        "kor": "불꽃놀이"
+      },
+      {
+        "id": 26,
+        "eng": "writer",
+        "kor": "작가"
+      },
+      {
+        "id": 27,
+        "eng": "guitar",
+        "kor": "기타"
+      },
+      {
+        "id": 28,
+        "eng": "famous",
+        "kor": "유명한"
+      },
+      {
+        "id": 29,
+        "eng": "painter",
+        "kor": "화가"
+      },
+      {
+        "id": 30,
+        "eng": "cheap",
+        "kor": "값싼"
+      },
+      {
+        "id": 31,
+        "eng": "then",
+        "kor": "그때"
+      },
+      {
+        "id": 32,
+        "eng": "shy",
+        "kor": "수줍은"
+      },
+      {
+        "id": 33,
+        "eng": "miss",
+        "kor": "그리워하다"
+      },
+      {
+        "id": 34,
+        "eng": "bright",
+        "kor": "밝은"
+      },
+      {
+        "id": 35,
+        "eng": "beach",
+        "kor": "해변"
+      },
+      {
+        "id": 36,
+        "eng": "noise",
+        "kor": "소음"
+      },
+      {
+        "id": 37,
+        "eng": "careful",
+        "kor": "조심하는, 주의 깊은"
+      },
+      {
+        "id": 38,
+        "eng": "ready",
+        "kor": "준비가 된"
+      },
+      {
+        "id": 39,
+        "eng": "mistake",
+        "kor": "실수"
+      },
+      {
+        "id": 40,
+        "eng": "ending",
+        "kor": "결말"
+      },
+      {
+        "id": 41,
+        "eng": "throw",
+        "kor": "던지다"
+      },
+      {
+        "id": 42,
+        "eng": "empty",
+        "kor": "빈"
+      },
+      {
+        "id": 43,
+        "eng": "open",
+        "kor": "열리다; 열다"
+      }
+    ]
+  },
+  "unit2": {
+    "title": "UNIT 02 1형식과 2형식",
+    "words": [
+      {
+        "id": 1,
+        "eng": "look",
+        "kor": "~해 보이다"
+      },
+      {
+        "id": 2,
+        "eng": "sound",
+        "kor": "~하게 들리다"
+      },
+      {
+        "id": 3,
+        "eng": "smell",
+        "kor": "~한 냄새가 나다"
+      },
+      {
+        "id": 4,
+        "eng": "taste",
+        "kor": "~한 맛이 나다"
+      },
+      {
+        "id": 5,
+        "eng": "delicious",
+        "kor": "맛있는"
+      },
+      {
+        "id": 6,
+        "eng": "feel",
+        "kor": "~하게 느껴지다"
+      },
+      {
+        "id": 7,
+        "eng": "bark",
+        "kor": "(개가) 짖다"
+      },
+      {
+        "id": 8,
+        "eng": "loudly",
+        "kor": "큰 소리로"
+      },
+      {
+        "id": 9,
+        "eng": "voice",
+        "kor": "목소리"
+      },
+      {
+        "id": 10,
+        "eng": "pillow",
+        "kor": "베개"
+      },
+      {
+        "id": 11,
+        "eng": "softly",
+        "kor": "부드럽게"
+      },
+      {
+        "id": 12,
+        "eng": "sweet",
+        "kor": "달콤한, 단"
+      },
+      {
+        "id": 13,
+        "eng": "laugh",
+        "kor": "웃다"
+      },
+      {
+        "id": 14,
+        "eng": "hard",
+        "kor": "열심히"
+      },
+      {
+        "id": 15,
+        "eng": "ring",
+        "kor": "울리다"
+      },
+      {
+        "id": 16,
+        "eng": "stop",
+        "kor": "정류장, 정거장"
+      },
+      {
+        "id": 17,
+        "eng": "beautiful",
+        "kor": "아름다운"
+      },
+      {
+        "id": 18,
+        "eng": "rise",
+        "kor": "(해, 달이) 뜨다"
+      },
+      {
+        "id": 19,
+        "eng": "scarf",
+        "kor": "스카프"
+      },
+      {
+        "id": 20,
+        "eng": "soft",
+        "kor": "부드러운"
+      },
+      {
+        "id": 21,
+        "eng": "bench",
+        "kor": "벤치"
+      },
+      {
+        "id": 22,
+        "eng": "office",
+        "kor": "사무실"
+      },
+      {
+        "id": 23,
+        "eng": "weather",
+        "kor": "날씨"
+      },
+      {
+        "id": 24,
+        "eng": "lie",
+        "kor": "거짓말; 거짓말하다"
+      },
+      {
+        "id": 25,
+        "eng": "interesting",
+        "kor": "재미있는"
+      },
+      {
+        "id": 26,
+        "eng": "angrily",
+        "kor": "화가 나서"
+      },
+      {
+        "id": 27,
+        "eng": "young",
+        "kor": "어린, 젊은"
+      },
+      {
+        "id": 28,
+        "eng": "sour",
+        "kor": "(맛이) 신"
+      },
+      {
+        "id": 29,
+        "eng": "arrive",
+        "kor": "도착하다"
+      },
+      {
+        "id": 30,
+        "eng": "airport",
+        "kor": "공항"
+      },
+      {
+        "id": 31,
+        "eng": "idea",
+        "kor": "생각, 아이디어"
+      },
+      {
+        "id": 32,
+        "eng": "perfectly",
+        "kor": "완벽하게"
+      },
+      {
+        "id": 33,
+        "eng": "quick",
+        "kor": "빠른"
+      },
+      {
+        "id": 34,
+        "eng": "sweater",
+        "kor": "스웨터"
+      },
+      {
+        "id": 35,
+        "eng": "set",
+        "kor": "(해·달이) 지다"
+      },
+      {
+        "id": 36,
+        "eng": "moon",
+        "kor": "달"
+      },
+      {
+        "id": 37,
+        "eng": "shine",
+        "kor": "빛나다"
+      },
+      {
+        "id": 38,
+        "eng": "leaf",
+        "kor": "(나뭇)잎"
+      },
+      {
+        "id": 39,
+        "eng": "fall",
+        "kor": "떨어지다"
+      },
+      {
+        "id": 40,
+        "eng": "autumn",
+        "kor": "가을"
+      },
+      {
+        "id": 41,
+        "eng": "flow",
+        "kor": "흐르다"
+      },
+      {
+        "id": 42,
+        "eng": "plant",
+        "kor": "식물"
+      },
+      {
+        "id": 43,
+        "eng": "tourist",
+        "kor": "관광객"
+      },
+      {
+        "id": 44,
+        "eng": "village",
+        "kor": "마을"
+      },
+      {
+        "id": 45,
+        "eng": "soon",
+        "kor": "곧"
+      },
+      {
+        "id": 46,
+        "eng": "cousin",
+        "kor": "사촌"
+      },
+      {
+        "id": 47,
+        "eng": "living room",
+        "kor": "거실"
+      }
+    ]
+  },
+  "unit3": {
+    "title": "UNIT 03 3형식 (동사+목적어)",
+    "words": [
+      {
+        "id": 1,
+        "eng": "sell",
+        "kor": "팔다"
+      },
+      {
+        "id": 2,
+        "eng": "fresh",
+        "kor": "신선한"
+      },
+      {
+        "id": 3,
+        "eng": "weekend",
+        "kor": "주말"
+      },
+      {
+        "id": 4,
+        "eng": "snack",
+        "kor": "간식"
+      },
+      {
+        "id": 5,
+        "eng": "science",
+        "kor": "과학"
+      },
+      {
+        "id": 6,
+        "eng": "break",
+        "kor": "깨뜨리다"
+      },
+      {
+        "id": 7,
+        "eng": "vase",
+        "kor": "꽃병"
+      },
+      {
+        "id": 8,
+        "eng": "bring",
+        "kor": "가져오다"
+      },
+      {
+        "id": 9,
+        "eng": "draw",
+        "kor": "그리다"
+      },
+      {
+        "id": 10,
+        "eng": "wall",
+        "kor": "벽"
+      },
+      {
+        "id": 11,
+        "eng": "a glass of",
+        "kor": "한 잔의"
+      },
+      {
+        "id": 12,
+        "eng": "build",
+        "kor": "짓다"
+      },
+      {
+        "id": 13,
+        "eng": "in class",
+        "kor": "수업 중에"
+      },
+      {
+        "id": 14,
+        "eng": "practice",
+        "kor": "연습하다"
+      },
+      {
+        "id": 15,
+        "eng": "exam",
+        "kor": "시험"
+      },
+      {
+        "id": 16,
+        "eng": "invite",
+        "kor": "초대하다"
+      },
+      {
+        "id": 17,
+        "eng": "parents",
+        "kor": "부모"
+      },
+      {
+        "id": 18,
+        "eng": "understand",
+        "kor": "이해하다"
+      },
+      {
+        "id": 19,
+        "eng": "free",
+        "kor": "자유로운; 무료의"
+      },
+      {
+        "id": 20,
+        "eng": "spicy",
+        "kor": "매운"
+      },
+      {
+        "id": 21,
+        "eng": "scissors",
+        "kor": "가위"
+      },
+      {
+        "id": 22,
+        "eng": "history",
+        "kor": "역사"
+      },
+      {
+        "id": 23,
+        "eng": "learn",
+        "kor": "배우다"
+      },
+      {
+        "id": 24,
+        "eng": "move",
+        "kor": "옮기다"
+      },
+      {
+        "id": 25,
+        "eng": "corner",
+        "kor": "(방, 상자의) 구석"
+      },
+      {
+        "id": 26,
+        "eng": "solve",
+        "kor": "해결하다, 풀다"
+      },
+      {
+        "id": 27,
+        "eng": "borrow",
+        "kor": "빌리다"
+      },
+      {
+        "id": 28,
+        "eng": "kick",
+        "kor": "(발로) 차다"
+      },
+      {
+        "id": 29,
+        "eng": "remember",
+        "kor": "기억하다"
+      },
+      {
+        "id": 30,
+        "eng": "get",
+        "kor": "받다"
+      },
+      {
+        "id": 31,
+        "eng": "board game",
+        "kor": "보드게임"
+      },
+      {
+        "id": 32,
+        "eng": "water",
+        "kor": "물을 주다"
+      },
+      {
+        "id": 33,
+        "eng": "join",
+        "kor": "가입하다"
+      },
+      {
+        "id": 34,
+        "eng": "pick",
+        "kor": "(과일을) 따다"
+      },
+      {
+        "id": 35,
+        "eng": "chef",
+        "kor": "요리사"
+      }
+    ]
+  },
+  "unit4": {
+    "title": "UNIT 04 4형식 (동사+목적어+목적어)",
+    "words": [
+      {
+        "id": 1,
+        "eng": "gift",
+        "kor": "선물"
+      },
+      {
+        "id": 2,
+        "eng": "show",
+        "kor": "보여 주다"
+      },
+      {
+        "id": 3,
+        "eng": "video",
+        "kor": "영상, 비디오"
+      },
+      {
+        "id": 4,
+        "eng": "bring",
+        "kor": "가져다주다"
+      },
+      {
+        "id": 5,
+        "eng": "secret",
+        "kor": "비밀"
+      },
+      {
+        "id": 6,
+        "eng": "picture",
+        "kor": "사진, 그림"
+      },
+      {
+        "id": 7,
+        "eng": "letter",
+        "kor": "편지"
+      },
+      {
+        "id": 8,
+        "eng": "sweater",
+        "kor": "스웨터"
+      },
+      {
+        "id": 9,
+        "eng": "album",
+        "kor": "앨범"
+      },
+      {
+        "id": 10,
+        "eng": "juice",
+        "kor": "주스"
+      },
+      {
+        "id": 11,
+        "eng": "message",
+        "kor": "메시지"
+      },
+      {
+        "id": 12,
+        "eng": "medicine",
+        "kor": "약"
+      },
+      {
+        "id": 13,
+        "eng": "child",
+        "kor": "아이"
+      },
+      {
+        "id": 14,
+        "eng": "chocolate",
+        "kor": "초콜릿"
+      },
+      {
+        "id": 15,
+        "eng": "cousin",
+        "kor": "사촌"
+      },
+      {
+        "id": 16,
+        "eng": "coach",
+        "kor": "(스포츠팀의) 코치"
+      },
+      {
+        "id": 17,
+        "eng": "rule",
+        "kor": "규칙"
+      },
+      {
+        "id": 18,
+        "eng": "noodle",
+        "kor": "국수"
+      },
+      {
+        "id": 19,
+        "eng": "recipe",
+        "kor": "레시피, 조리법"
+      },
+      {
+        "id": 20,
+        "eng": "guest",
+        "kor": "손님"
+      },
+      {
+        "id": 21,
+        "eng": "bracelet",
+        "kor": "팔찌"
+      },
+      {
+        "id": 22,
+        "eng": "surprising",
+        "kor": "놀라운"
+      },
+      {
+        "id": 23,
+        "eng": "hard",
+        "kor": "어려운"
+      },
+      {
+        "id": 24,
+        "eng": "truth",
+        "kor": "사실"
+      },
+      {
+        "id": 25,
+        "eng": "postcard",
+        "kor": "엽서"
+      },
+      {
+        "id": 26,
+        "eng": "lie",
+        "kor": "거짓말"
+      },
+      {
+        "id": 27,
+        "eng": "backpack",
+        "kor": "책가방, 배낭"
+      },
+      {
+        "id": 28,
+        "eng": "magic trick",
+        "kor": "마술 묘기"
+      },
+      {
+        "id": 29,
+        "eng": "map",
+        "kor": "지도"
+      },
+      {
+        "id": 30,
+        "eng": "present",
+        "kor": "선물"
+      },
+      {
+        "id": 31,
+        "eng": "number",
+        "kor": "번호"
+      },
+      {
+        "id": 32,
+        "eng": "word",
+        "kor": "단어"
+      },
+      {
+        "id": 33,
+        "eng": "calendar",
+        "kor": "달력"
+      },
+      {
+        "id": 34,
+        "eng": "hot chocolate",
+        "kor": "핫쇼코, 코코아"
+      }
+    ]
+  },
+  "unit5": {
+    "title": "UNIT 05 5형식 (동사+목적어+보어)",
+    "words": [
+      {
+        "id": 1,
+        "eng": "joke",
+        "kor": "농담"
+      },
+      {
+        "id": 2,
+        "eng": "keep",
+        "kor": "(특정 상태를) 유지하다"
+      },
+      {
+        "id": 3,
+        "eng": "find",
+        "kor": "~하다고 알게 되다"
+      },
+      {
+        "id": 4,
+        "eng": "difficult",
+        "kor": "어려운"
+      },
+      {
+        "id": 5,
+        "eng": "famous",
+        "kor": "유명한"
+      },
+      {
+        "id": 6,
+        "eng": "plant",
+        "kor": "식물"
+      },
+      {
+        "id": 7,
+        "eng": "healthy",
+        "kor": "건강한"
+      },
+      {
+        "id": 8,
+        "eng": "interesting",
+        "kor": "재미있는"
+      },
+      {
+        "id": 9,
+        "eng": "warm",
+        "kor": "따뜻한"
+      },
+      {
+        "id": 10,
+        "eng": "boring",
+        "kor": "지루한"
+      },
+      {
+        "id": 11,
+        "eng": "proud",
+        "kor": "자랑스러운"
+      },
+      {
+        "id": 12,
+        "eng": "honest",
+        "kor": "정직한"
+      },
+      {
+        "id": 13,
+        "eng": "seat belt",
+        "kor": "안전벨트"
+      },
+      {
+        "id": 14,
+        "eng": "wet",
+        "kor": "젖은"
+      },
+      {
+        "id": 15,
+        "eng": "brave",
+        "kor": "용감한"
+      },
+      {
+        "id": 16,
+        "eng": "exercise",
+        "kor": "운동"
+      },
+      {
+        "id": 17,
+        "eng": "hero",
+        "kor": "영웅"
+      },
+      {
+        "id": 18,
+        "eng": "nail",
+        "kor": "손톱"
+      },
+      {
+        "id": 19,
+        "eng": "thirsty",
+        "kor": "목마른"
+      },
+      {
+        "id": 20,
+        "eng": "neighbor",
+        "kor": "이웃"
+      },
+      {
+        "id": 21,
+        "eng": "exciting",
+        "kor": "재미있는"
+      },
+      {
+        "id": 22,
+        "eng": "smell",
+        "kor": "냄새"
+      },
+      {
+        "id": 23,
+        "eng": "oven",
+        "kor": "오븐"
+      },
+      {
+        "id": 24,
+        "eng": "sharp",
+        "kor": "날카로운"
+      },
+      {
+        "id": 25,
+        "eng": "specially",
+        "kor": "특별히"
+      },
+      {
+        "id": 26,
+        "eng": "simple",
+        "kor": "간단한"
+      },
+      {
+        "id": 27,
+        "eng": "worried",
+        "kor": "걱정하는"
+      },
+      {
+        "id": 28,
+        "eng": "Earth",
+        "kor": "지구"
+      },
+      {
+        "id": 29,
+        "eng": "dry",
+        "kor": "마른, 건조한"
+      },
+      {
+        "id": 30,
+        "eng": "problem",
+        "kor": "문제"
+      },
+      {
+        "id": 31,
+        "eng": "calm",
+        "kor": "차분한, 침착한"
+      },
+      {
+        "id": 32,
+        "eng": "expensive",
+        "kor": "비싼"
+      },
+      {
+        "id": 33,
+        "eng": "blanket",
+        "kor": "담요"
+      },
+      {
+        "id": 34,
+        "eng": "show",
+        "kor": "공연"
+      },
+      {
+        "id": 35,
+        "eng": "clear",
+        "kor": "분명한"
+      }
+    ]
+  }
+};
+
+        // App State Variables
+        let currentUnitKey = 'all';
+        let currentList = [];
+        let wrongList = []; // array of word objects
+        let correctList = [];
+        let currentIndex = 0;
+        let isAnswerRevealed = false;
+        let quizMode = 'korToEng'; // 'korToEng' or 'engToKor'
+        let isWrongOnlyMode = false;
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            changeUnit();
+        });
+
+        function getAllWords() {
+            let all = [];
+            Object.keys(vocabData).forEach(key => {
+                vocabData[key].words.forEach(w => {
+                    all.push({ ...w, unitTitle: vocabData[key].title.split(' ')[1] || vocabData[key].title });
+                });
+            });
+            return all;
+        }
+
+        function getWordsForUnit(unitKey) {
+            if (unitKey === 'all') {
+                return getAllWords();
+            } else if (vocabData[unitKey]) {
+                return vocabData[unitKey].words.map(w => ({
+                    ...w,
+                    unitTitle: vocabData[unitKey].title.split(' ')[1] || vocabData[unitKey].title
+                }));
+            }
+            return [];
+        }
+
+        function changeUnit() {
+            currentUnitKey = document.getElementById('unitSelect').value;
+            isWrongOnlyMode = false;
+            currentList = getWordsForUnit(currentUnitKey);
+            currentIndex = 0;
+            
+            renderFlashcard();
+            renderSheet();
+        }
+
+        function setQuizMode(mode) {
+            quizMode = mode;
+            document.getElementById('modeKorToEng').classList.toggle('active', mode === 'korToEng');
+            document.getElementById('modeEngToKor').classList.toggle('active', mode === 'engToKor');
+            renderFlashcard();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+
+            if (tabName === 'flashcard') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('flashcardView').classList.add('active');
+            } else if (tabName === 'sheet') {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('sheetView').classList.add('active');
+            } else if (tabName === 'wrong') {
+                document.querySelectorAll('.tab-btn')[2].classList.add('active');
+                document.getElementById('wrongView').classList.add('active');
+                renderWrongView();
+            }
+        }
+
+        /* Flashcard Logic */
+        function renderFlashcard() {
+            if (currentList.length === 0) {
+                document.getElementById('cardQuestion').textContent = "학습할 단어가 없습니다.";
+                document.getElementById('cardAnswer').style.display = 'none';
+                document.getElementById('cardHint').style.display = 'none';
+                document.getElementById('cardNumber').textContent = "0 / 0";
+                document.getElementById('progressBar').style.width = "0%";
+                return;
+            }
+
+            if (currentIndex >= currentList.length) {
+                // Quiz Completed
+                document.getElementById('cardQuestion').textContent = "🎉 퀴즈를 모두 완료했습니다!";
+                document.getElementById('cardHint').textContent = "오답 노트를 확인해보세요.";
+                document.getElementById('cardAnswer').style.display = 'none';
+                document.getElementById('cardNumber').textContent = `${currentList.length} / ${currentList.length}`;
+                document.getElementById('progressBar').style.width = "100%";
+                return;
+            }
+
+            const word = currentList[currentIndex];
+            isAnswerRevealed = false;
+
+            document.getElementById('cardNumber').textContent = `${currentIndex + 1} / ${currentList.length}`;
+            document.getElementById('progressBar').style.width = `${((currentIndex) / currentList.length) * 100}%`;
+
+            if (quizMode === 'korToEng') {
+                document.getElementById('cardQuestion').textContent = word.kor;
+                document.getElementById('cardAnswer').textContent = word.eng;
+            } else {
+                document.getElementById('cardQuestion').textContent = word.eng;
+                document.getElementById('cardAnswer').textContent = word.kor;
+            }
+
+            document.getElementById('cardAnswer').style.display = 'none';
+            document.getElementById('cardHint').style.display = 'inline-block';
+            document.getElementById('cardHint').textContent = "👆 클릭하여 정답 확인하기";
+        }
+
+        function revealAnswer() {
+            if (currentList.length === 0 || currentIndex >= currentList.length) return;
+
+            if (!isAnswerRevealed) {
+                isAnswerRevealed = true;
+                document.getElementById('cardAnswer').style.display = 'block';
+                document.getElementById('cardHint').style.display = 'none';
+
+                // Automatically speak English word when revealed
+                playCurrentAudio();
+            }
+        }
+
+        function playCurrentAudio() {
+            if (currentList.length === 0 || currentIndex >= currentList.length) return;
+            const word = currentList[currentIndex];
+            speakEnglish(word.eng);
+        }
+
+        function speakEnglish(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop any previous sound
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9; // Slightly slower for clear learning
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showToast("이 브라우저는 음성 합성을 지원하지 않습니다.");
+            }
+        }
+
+        function markAnswer(isCorrect) {
+            if (currentList.length === 0 || currentIndex >= currentList.length) return;
+
+            const currentWord = currentList[currentIndex];
+
+            if (isCorrect) {
+                if (!correctList.some(w => w.eng === currentWord.eng && w.kor === currentWord.kor)) {
+                    correctList.push(currentWord);
+                }
+            } else {
+                if (!wrongList.some(w => w.eng === currentWord.eng && w.kor === currentWord.kor)) {
+                    wrongList.push(currentWord);
+                }
+            }
+
+            updateWrongBadge();
+            currentIndex++;
+            renderFlashcard();
+        }
+
+        function updateWrongBadge() {
+            document.getElementById('wrongBadge').textContent = `(${wrongList.length})`;
+        }
+
+        /* Full Sheet Render & Filter */
+        function renderSheet() {
+            const tbody = document.getElementById('vocabTableBody');
+            tbody.innerHTML = '';
+
+            const titleElem = document.getElementById('sheetTitle');
+            if (currentUnitKey === 'all') {
+                titleElem.textContent = '전체 유닛 단어장 (총 194단어)';
+            } else {
+                titleElem.textContent = vocabData[currentUnitKey].title;
+            }
+
+            const words = getWordsForUnit(currentUnitKey);
+
+            words.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color: var(--text-muted); font-size: 0.85rem;">${idx + 1}</td>
+                    <td class="eng-word">${escapeHtml(item.eng)}</td>
+                    <td class="kor-mean">${escapeHtml(item.kor)}</td>
+                    <td style="text-align: center;">
+                        <button class="audio-icon-btn" style="width: 32px; height: 32px; margin: 0;" onclick="speakEnglish('${escapeJs(item.eng)}')">
+                            <svg viewBox="0 0 24 24" style="width:16px; height:16px;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterSheet() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#vocabTableBody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        /* Wrong Note Render & Export */
+        function renderWrongView() {
+            document.getElementById('totalWrongCount').textContent = wrongList.length;
+            document.getElementById('totalCorrectCount').textContent = correctList.length;
+
+            const btnRetry = document.getElementById('btnRetryWrong');
+            btnRetry.disabled = wrongList.length === 0;
+
+            const tbody = document.getElementById('wrongTableBody');
+            tbody.innerHTML = '';
+
+            if (wrongList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted); padding: 30px;">틀린 단어가 없습니다. 완벽해요! 👏</td></tr>`;
+                return;
+            }
+
+            wrongList.forEach((item) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color: var(--text-muted); font-size: 0.85rem;">${item.unitTitle || 'UNIT'}</td>
+                    <td class="eng-word" style="color: var(--wrong-color);">${escapeHtml(item.eng)}</td>
+                    <td class="kor-mean">${escapeHtml(item.kor)}</td>
+                    <td style="text-align: center;">
+                        <button class="audio-icon-btn" style="width: 32px; height: 32px; margin: 0;" onclick="speakEnglish('${escapeJs(item.eng)}')">
+                            <svg viewBox="0 0 24 24" style="width:16px; height:16px;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function startWrongOnlyQuiz() {
+            if (wrongList.length === 0) return;
+            currentList = [...wrongList];
+            currentIndex = 0;
+            isWrongOnlyMode = true;
+            switchTab('flashcard');
+            showToast("🔥 틀린 단어들로 재시험을 시작합니다!");
+        }
+
+        function getWrongListFormattedText() {
+            let text = "=============================";
+            text += "  📖 [영어 단어장] 오답 노트";
+            text += "=============================";
+
+            wrongList.forEach((item, index) => {
+                text += `${index + 1}. ${item.eng} - ${item.kor}`;
+            });
+
+            text += "-----------------------------";
+            text += `생성 시간: ${new Date().toLocaleString('ko-KR')}`;
+            return text;
+        }
+
+        function downloadWrongListText() {
+            if (wrongList.length === 0) {
+                showToast("저장할 오답 내역이 없습니다.");
+                return;
+            }
+
+            const textContent = getWrongListFormattedText();
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `영단어_오답노트_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast("📄 텍스트 파일이 저장되었습니다.");
+        }
+
+        function copyWrongListToClipboard() {
+            if (wrongList.length === 0) {
+                showToast("복사할 오답 내역이 없습니다.");
+                return;
+            }
+
+            const textContent = getWrongListFormattedText();
+            navigator.clipboard.writeText(textContent).then(() => {
+                showToast("📋 오답 노트가 클립보드에 복사되었습니다!");
+            }).catch(err => {
+                showToast("클립보드 복사에 실패했습니다.");
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2500);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function escapeJs(str) {
+            return str.replace(/'/g, "\'");
+        }
+    </script>
+</body>
+</html>
