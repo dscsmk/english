@@ -34,6 +34,15 @@
             color: var(--text-dark);
             line-height: 1.6;
             padding-bottom: 50px;
+            transition: background-color 0.3s;
+        }
+
+        /* 공부 모드 전용 배경 테마 스타일 */
+        body.study-mode {
+            --primary-color: #1565c0;
+            --primary-light: #e3f2fd;
+            --primary-hover: #0d47a1;
+            background-color: #f0f4f8;
         }
 
         header {
@@ -42,6 +51,11 @@
             padding: 20px 16px;
             text-align: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: background 0.3s;
+        }
+
+        body.study-mode header {
+            background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
         }
 
         header h1 {
@@ -61,6 +75,47 @@
             padding: 0 16px;
         }
 
+        /* App Main Switch Bar (공부모드 vs 게임모드) */
+        .app-mode-bar {
+            background: #ffffff;
+            border-radius: var(--radius);
+            padding: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+            display: flex;
+            gap: 8px;
+            border: 2px solid var(--border-color);
+        }
+
+        .app-mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .app-mode-btn.active-game {
+            background: #4caf50;
+            color: white;
+            box-shadow: 0 3px 8px rgba(76, 175, 80, 0.4);
+        }
+
+        .app-mode-btn.active-study {
+            background: #1e88e5;
+            color: white;
+            box-shadow: 0 3px 8px rgba(30, 136, 229, 0.4);
+        }
+
         /* Game Status Header Bar */
         .game-status-bar {
             background: #ffffff;
@@ -73,6 +128,13 @@
             justify-content: space-between;
             gap: 12px;
             border: 2px solid #e8f5e9;
+            transition: all 0.3s;
+        }
+
+        /* 공부모드일 경우 게임 요소 숨기기 */
+        body.study-mode .game-status-bar,
+        body.study-mode .game-only {
+            display: none !important;
         }
 
         .stat-badge {
@@ -97,6 +159,12 @@
             font-weight: 800;
             display: none;
             animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .lives-container {
+            display: flex;
+            gap: 2px;
+            font-size: 1.1rem;
         }
 
         @keyframes popIn {
@@ -235,6 +303,7 @@
             gap: 8px;
             margin-bottom: 16px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .mode-btn {
@@ -252,6 +321,24 @@
             background: var(--primary-light);
             color: var(--primary-color);
             border-color: var(--primary-color);
+        }
+
+        /* Game Timer Bar */
+        .timer-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .timer-bar-fill {
+            height: 100%;
+            background: #ff5722;
+            width: 100%;
+            transition: width 0.1s linear;
         }
 
         .flashcard-box {
@@ -458,7 +545,7 @@
             border-radius: 10px;
         }
 
-        .stat-item { display: flex; flexDirection: column; }
+        .stat-item { display: flex; flex-direction: column; }
         .stat-num { font-size: 1.6rem; font-weight: 800; }
         .stat-num.wrong-cnt { color: var(--wrong-color); }
         .stat-num.correct-cnt { color: var(--correct-color); }
@@ -507,6 +594,31 @@
             animation: fadeIn 0.3s;
         }
 
+        /* Modal Popup */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-card h2 { margin-bottom: 12px; font-size: 1.5rem; }
+        .modal-card p { color: var(--text-muted); margin-bottom: 20px; }
+
         @media (max-width: 600px) {
             header h1 { font-size: 1.3rem; }
             .card-question { font-size: 1.6rem; }
@@ -520,17 +632,31 @@
 <body>
 
     <header>
-        <h1>📖 영단어 암기 퀴즈</h1>
+        <h1 id="appTitle">📖 영단어 암기 퀴즈</h1>
         <p>1형식부터 5형식 문장 구조 어휘 학습</p>
     </header>
 
     <div class="container">
 
-        <!-- 게임 상태 표시 바 (Gamification Bar) -->
+        <!-- 0. App Mode Selector (게임모드 / 공부모드 토글 버튼) -->
+        <div class="app-mode-bar">
+            <button id="btnGameMode" class="app-mode-btn active-game" onclick="setAppMode('game')">
+                🎮 게임 모드
+            </button>
+            <button id="btnStudyMode" class="app-mode-btn" onclick="setAppMode('study')">
+                📚 공부 모드
+            </button>
+        </div>
+
+        <!-- 1. 게임 상태 표시 바 (Gamification Bar) - 게임모드 전용 -->
         <div class="game-status-bar">
             <div class="stat-badge">
                 <span>👑</span>
                 <span class="level-title" id="levelDisplay">Lv.1 입문자</span>
+            </div>
+            <div class="stat-badge">
+                <span>❤️</span>
+                <div class="lives-container" id="livesDisplay">❤️❤️❤️❤️❤️</div>
             </div>
             <div class="stat-badge">
                 <span>⭐</span>
@@ -584,6 +710,11 @@
             <div class="quiz-config">
                 <button id="modeKorToEng" class="mode-btn active" onclick="setQuizMode('korToEng')">한글 보고 영단어 맞추기</button>
                 <button id="modeEngToKor" class="mode-btn" onclick="setQuizMode('engToKor')">영단어 보고 한글 뜻 맞추기</button>
+                <button id="timerToggleBtn" class="mode-btn game-only" onclick="toggleTimerOption()">⏱️ 타임어택: OFF</button>
+            </div>
+
+            <div class="timer-bar-container" id="timerBarContainer">
+                <div class="timer-bar-fill" id="timerBarFill"></div>
             </div>
 
             <div class="flashcard-box" id="flashcard" onclick="revealAnswer()">
@@ -671,10 +802,19 @@
 
     </div>
 
+    <!-- Game Over Modal -->
+    <div class="modal-overlay" id="gameOverModal">
+        <div class="modal-card">
+            <h2>💔 GAME OVER</h2>
+            <p>하트를 모두 소모하였습니다!<br>오답 노트를 복습하고 다시 도전해보세요.</p>
+            <button class="primary-action-btn" onclick="resetGameHearts()">🔄 다시 도전하기</button>
+        </div>
+    </div>
+
     <div id="toast" class="toast">메시지</div>
 
     <script>
-        // Vocabulary Master Data
+        // Vocabulary Master Data (원본 데이터 100% 보존)
         const vocabData = {
           "unit1": {
             "title": "UNIT 01 문장을 이루는 요소",
@@ -897,7 +1037,6 @@
           }
         };
 
-        // App Game Levels Config
         const levelTitles = [
             "Lv.1 단어 입문자",
             "Lv.2 단어 탐험가",
@@ -908,6 +1047,7 @@
         ];
 
         // State Variables
+        let appMode = 'game'; // 'game' | 'study'
         let currentUnitKey = 'all';
         let currentList = [];
         let wrongList = [];
@@ -915,13 +1055,20 @@
         let currentIndex = 0;
         let isAnswerRevealed = false;
         let quizMode = 'korToEng'; 
-        let isRandom = false; // Order State
+        let isRandom = false; 
 
         // Gamification States
         let score = 0;
         let combo = 0;
         let xp = 0;
         let level = 0;
+        let lives = 5;
+        let maxLives = 5;
+
+        // Timer States
+        let isTimerActive = false;
+        let timerInterval = null;
+        let timeLeft = 10; // 10 seconds per question
 
         // Sound FX Engine (Web Audio API)
         function playEffectSound(type) {
@@ -931,9 +1078,9 @@
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
                     osc.type = 'sine';
-                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08); // E5
-                    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.16); // G5
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08);
+                    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.16);
                     gain.gain.setValueAtTime(0.12, ctx.currentTime);
                     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
                     osc.connect(gain);
@@ -972,7 +1119,31 @@
         window.addEventListener('DOMContentLoaded', () => {
             changeUnit();
             updateGameStatusUI();
+            setAppMode('game');
         });
+
+        // App Mode Switch (게임모드 ↔ 공부모드)
+        function setAppMode(mode) {
+            appMode = mode;
+            const btnGame = document.getElementById('btnGameMode');
+            const btnStudy = document.getElementById('btnStudyMode');
+            const titleElem = document.getElementById('appTitle');
+
+            if (mode === 'study') {
+                document.body.classList.add('study-mode');
+                btnGame.className = 'app-mode-btn';
+                btnStudy.className = 'app-mode-btn active-study';
+                titleElem.textContent = '📚 영단어 공부모드';
+                stopTimer();
+                showToast("📚 공부 모드로 전환되었습니다. 부담없이 암기해보세요!");
+            } else {
+                document.body.classList.remove('study-mode');
+                btnGame.className = 'app-mode-btn active-game';
+                btnStudy.className = 'app-mode-btn';
+                titleElem.textContent = '🎮 영단어 게임모드';
+                showToast("🎮 게임 모드로 전환되었습니다. 콤보와 점수를 획득해보세요!");
+            }
+        }
 
         function getAllWords() {
             let all = [];
@@ -1010,7 +1181,7 @@
             isRandom = randomMode;
             document.getElementById('orderSeqBtn').classList.toggle('active', !isRandom);
             document.getElementById('orderRandBtn').classList.toggle('active', isRandom);
-            changeUnit(); // Re-fetch & reload list
+            changeUnit(); 
             showToast(isRandom ? "🔀 단어를 랜덤하게 섞었습니다!" : "🔢 단어를 순서대로 배치했습니다.");
         }
 
@@ -1046,15 +1217,19 @@
             } else if (tabName === 'sheet') {
                 document.querySelectorAll('.tab-btn')[1].classList.add('active');
                 document.getElementById('sheetView').classList.add('active');
+                stopTimer();
             } else if (tabName === 'wrong') {
                 document.querySelectorAll('.tab-btn')[2].classList.add('active');
                 document.getElementById('wrongView').classList.add('active');
                 renderWrongView();
+                stopTimer();
             }
         }
 
         /* Flashcard Logic */
         function renderFlashcard() {
+            stopTimer();
+
             if (currentList.length === 0) {
                 document.getElementById('cardQuestion').textContent = "학습할 단어가 없습니다.";
                 document.getElementById('cardAnswer').style.display = 'none';
@@ -1090,6 +1265,10 @@
             document.getElementById('cardAnswer').style.display = 'none';
             document.getElementById('cardHint').style.display = 'inline-block';
             document.getElementById('cardHint').textContent = "👆 클릭하여 정답 확인하기";
+
+            if (appMode === 'game' && isTimerActive) {
+                startTimer();
+            }
         }
 
         function revealAnswer() {
@@ -1124,12 +1303,13 @@
         function markAnswer(isCorrect) {
             if (currentList.length === 0 || currentIndex >= currentList.length) return;
 
+            stopTimer();
             const currentWord = currentList[currentIndex];
 
             if (isCorrect) {
                 playEffectSound('correct');
                 combo++;
-                let gainScore = 10 + Math.floor(combo / 3) * 5; // Combo bonus
+                let gainScore = 10 + Math.floor(combo / 3) * 5; 
                 score += gainScore;
                 addXP(10);
 
@@ -1137,14 +1317,24 @@
                     correctList.push(currentWord);
                 }
 
-                if (combo >= 2) {
+                if (appMode === 'game' && combo >= 2) {
                     showComboEffect(`🔥 ${combo} COMBO! (+${gainScore}점)`);
                 }
             } else {
                 playEffectSound('wrong');
-                combo = 0; // Reset combo
+                combo = 0; 
                 if (!wrongList.some(w => w.eng === currentWord.eng && w.kor === currentWord.kor)) {
                     wrongList.push(currentWord);
+                }
+
+                // 게임모드일 때 하트 차감
+                if (appMode === 'game') {
+                    lives--;
+                    if (lives <= 0) {
+                        updateGameStatusUI();
+                        document.getElementById('gameOverModal').style.display = 'flex';
+                        return;
+                    }
                 }
             }
 
@@ -1153,6 +1343,57 @@
 
             currentIndex++;
             renderFlashcard();
+        }
+
+        /* Timer Option */
+        function toggleTimerOption() {
+            isTimerActive = !isTimerActive;
+            const btn = document.getElementById('timerToggleBtn');
+            const container = document.getElementById('timerBarContainer');
+
+            if (isTimerActive) {
+                btn.textContent = '⏱️ 타임어택: ON';
+                btn.classList.add('active');
+                container.style.display = 'block';
+                startTimer();
+            } else {
+                btn.textContent = '⏱️ 타임어택: OFF';
+                btn.classList.remove('active');
+                container.style.display = 'none';
+                stopTimer();
+            }
+        }
+
+        function startTimer() {
+            stopTimer();
+            timeLeft = 10;
+            const bar = document.getElementById('timerBarFill');
+            bar.style.width = '100%';
+
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.2;
+                bar.style.width = `${(timeLeft / 10) * 100}%`;
+
+                if (timeLeft <= 0) {
+                    stopTimer();
+                    showToast("⏰ 시간 초과! 오답 처리됩니다.");
+                    markAnswer(false);
+                }
+            }, 100);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function resetGameHearts() {
+            lives = maxLives;
+            document.getElementById('gameOverModal').style.display = 'none';
+            updateGameStatusUI();
+            changeUnit();
         }
 
         function showComboEffect(text) {
@@ -1179,6 +1420,13 @@
             document.getElementById('scoreDisplay').textContent = score;
             document.getElementById('levelDisplay').textContent = levelTitles[level];
             
+            // Lives render
+            let heartsStr = '';
+            for (let i = 0; i < maxLives; i++) {
+                heartsStr += (i < lives) ? '❤️' : '🖤';
+            }
+            document.getElementById('livesDisplay').textContent = heartsStr;
+
             const comboBadge = document.getElementById('comboBadge');
             if (combo >= 2) {
                 comboBadge.style.display = 'inline-flex';
