@@ -3,214 +3,517 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>초등/중등 필수 영단어 퀴즈 & 구출 게임</title>
+    <title>초등/중등 필수 영단어 퀴즈 & 단어장</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #2e7d32;
             --primary-light: #e8f5e9;
             --primary-hover: #1b5e20;
+            --accent-color: #ff9800;
             --bg-color: #f4f6f8;
             --card-bg: #ffffff;
             --text-dark: #2c3e50;
             --text-muted: #6c757d;
             --border-color: #e0e0e0;
             --wrong-color: #e53935;
-            --lava-color: #ff3d00;
+            --correct-color: #2e7d32;
             --shadow: 0 4px 12px rgba(0,0,0,0.08);
-            --radius: 16px;
+            --radius: 14px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-dark); padding-bottom: 50px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
 
         header {
             background: linear-gradient(135deg, #1b5e20 0%, #388e3c 100%);
-            color: white; padding: 18px 16px; text-align: center;
+            color: white;
+            padding: 20px 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
-        header h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 4px; }
-        header p { font-size: 0.9rem; opacity: 0.9; }
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
 
-        .container { max-width: 800px; margin: 16px auto; padding: 0 16px; }
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
 
-        /* Controls & Top Status */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+
+        /* Game Status Header Bar */
+        .game-status-bar {
+            background: #ffffff;
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border: 2px solid #e8f5e9;
+        }
+
+        .stat-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .level-title {
+            color: var(--primary-color);
+            font-weight: 800;
+        }
+
+        .combo-badge {
+            background: #fff3e0;
+            color: #e65100;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            display: none;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .xp-container {
+            flex: 1;
+            max-width: 180px;
+        }
+
+        .xp-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+
+        .xp-bar-bg {
+            background: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .xp-bar-fill {
+            background: linear-gradient(90deg, #ff9800, #ffb74d);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* Controls Card */
         .controls-card {
-            background: var(--card-bg); border-radius: var(--radius);
-            padding: 16px; box-shadow: var(--shadow); margin-bottom: 16px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
         }
-        .control-group { margin-bottom: 12px; }
+
+        .control-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 6px;
+        }
+
         select {
-            width: 100%; padding: 10px; border: 1px solid var(--border-color);
-            border-radius: 8px; font-weight: 600; background: #fff;
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            background-color: #fff;
+            color: var(--text-dark);
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
         }
+
+        /* Option Toggle Switch */
         .option-row {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
         }
-        .toggle-group { display: flex; background: #f0f0f0; border-radius: 8px; padding: 3px; }
+
+        .toggle-group {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 3px;
+        }
+
         .toggle-btn {
-            padding: 6px 12px; border: none; background: transparent;
-            font-size: 0.85rem; font-weight: 700; color: var(--text-muted); cursor: pointer;
+            padding: 6px 14px;
+            border: none;
+            background: transparent;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-radius: 8px;
+            cursor: pointer;
             transition: all 0.2s;
         }
-        .toggle-btn.active { background: white; color: var(--primary-color); border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-        .nav-tabs { display: flex; gap: 8px; margin-top: 10px; }
+        .toggle-btn.active {
+            background: #ffffff;
+            color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            overflow-x: auto;
+        }
+
         .tab-btn {
-            flex: 1; padding: 10px; border: 1px solid var(--border-color);
-            background: white; font-weight: 700; border-radius: 8px; cursor: pointer;
-        }
-        .tab-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
-
-        .view-section { display: none; }
-        .view-section.active { display: block; }
-
-        /* ---------------------------------------------------- */
-        /* 🎨 Rescue Stage Graphic Styles                       */
-        /* ---------------------------------------------------- */
-        .rescue-stage {
-            position: relative;
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%);
-            border-radius: var(--radius) var(--radius) 0 0;
-            overflow: hidden;
-            box-shadow: inset 0 -4px 12px rgba(0,0,0,0.1);
-            border: 2px solid #b2ebf2;
-            border-bottom: none;
-            transition: all 0.3s ease;
-        }
-
-        /* Mode: Study (Hide Game Graphics) */
-        .study-mode .rescue-stage,
-        .study-mode .time-bar-bg {
-            display: none !important;
-        }
-
-        .study-mode .flashcard-box {
-            border-radius: var(--radius) !important;
-            border-top: 2px solid #b2ebf2 !important;
-        }
-
-        /* Top HUD Bar */
-        .stage-hud {
-            position: absolute; top: 10px; left: 12px; right: 12px;
-            display: flex; justify-content: space-between; align-items: center; z-index: 10;
-        }
-        .hp-hearts { font-size: 1.2rem; }
-        .timer-badge {
-            background: rgba(255, 255, 255, 0.9); padding: 4px 10px;
-            border-radius: 20px; font-weight: 800; font-size: 0.85rem; color: #d32f2f;
-        }
-
-        /* Character Box */
-        .character-wrapper {
-            position: absolute;
-            left: 50%;
-            bottom: 25px;
-            transform: translateX(-50%);
-            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 5;
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 8px;
+            border: 1px solid var(--border-color);
+            background: white;
+            color: var(--text-dark);
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
             text-align: center;
         }
 
-        .bunny-svg { width: 80px; height: 80px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15)); }
-
-        .anim-bounce { animation: characterBounce 1.2s infinite ease-in-out; }
-        .anim-happy { animation: happyJump 0.5s ease; }
-        .anim-scared { animation: scaredShake 0.15s infinite; }
-
-        @keyframes characterBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-        @keyframes happyJump {
-            0% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-35px) scale(1.15); }
-            100% { transform: translateY(0) scale(1); }
-        }
-        @keyframes scaredShake {
-            0% { transform: translateX(-3px); }
-            100% { transform: translateX(3px); }
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
         }
 
-        /* Danger Lava Graphic */
-        .lava-container {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 15%;
-            background: linear-gradient(180deg, #ff5722 0%, #d84315 100%);
-            transition: height 0.3s ease-out;
-            z-index: 4;
-            box-shadow: 0 -6px 15px rgba(255, 87, 34, 0.6);
-        }
-        .lava-wave {
-            position: absolute; top: -12px; left: 0; width: 200%; height: 16px;
-            fill: #ff5722; animation: waveAnim 2s infinite linear;
-        }
-        @keyframes waveAnim {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+        /* View Sections */
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        /* Flashcard View */
+        .quiz-config {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            justify-content: center;
         }
 
-        /* Timer Progress Bar */
-        .time-bar-bg { width: 100%; height: 6px; background: #e0e0e0; }
-        .time-bar-fill { height: 100%; background: #4caf50; width: 100%; transition: width 0.1s linear, background-color 0.3s; }
+        .mode-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
 
-        /* Flashcard Box */
+        .mode-btn.active {
+            background: var(--primary-light);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
         .flashcard-box {
             background: var(--card-bg);
-            border-radius: 0 0 var(--radius) var(--radius);
+            border-radius: var(--radius);
             box-shadow: var(--shadow);
-            padding: 36px 20px; text-align: center;
-            min-height: 220px; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; cursor: pointer;
-            border: 2px solid #b2ebf2; border-top: none; position: relative;
-            transition: border-radius 0.3s;
-        }
-        .card-number { position: absolute; top: 12px; left: 16px; font-size: 0.85rem; color: var(--text-muted); font-weight: 700; }
-        .card-question { font-size: 1.8rem; font-weight: 800; color: var(--text-dark); margin-bottom: 12px; }
-        .card-hint { font-size: 0.85rem; color: var(--text-muted); background: #f0f4f8; padding: 4px 12px; border-radius: 12px; }
-        .card-answer { font-size: 1.6rem; font-weight: 800; color: var(--primary-color); display: none; margin-top: 8px; }
-
-        .audio-btn {
-            background: var(--primary-light); border: none; color: var(--primary-color);
-            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
-            margin-top: 10px; display: inline-flex; align-items: center; justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+            min-height: 260px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            border: 2px solid transparent;
+            user-select: none;
         }
 
-        .action-btns { display: flex; gap: 12px; margin-top: 16px; }
+        .flashcard-box:hover {
+            border-color: var(--primary-color);
+        }
+
+        .card-number {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .combo-effect-text {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-weight: 800;
+            color: #f57c00;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .card-question {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 14px;
+            word-break: keep-all;
+        }
+
+        .card-hint {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: #f0f4f8;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .card-answer {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-top: 10px;
+            display: none;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .audio-icon-btn {
+            background: var(--primary-light);
+            border: none;
+            color: var(--primary-color);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 12px;
+            transition: background 0.2s;
+        }
+
+        .audio-icon-btn:hover { background: #c8e6c9; }
+        .audio-icon-btn svg { width: 22px; height: 22px; fill: currentColor; }
+
+        .action-btns {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
         .btn-know, .btn-wrong {
-            flex: 1; padding: 16px; border: none; border-radius: 12px;
-            font-weight: 800; font-size: 1rem; cursor: pointer; color: white;
-            transition: transform 0.1s;
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
         }
+
         .btn-know:active, .btn-wrong:active { transform: scale(0.98); }
-        .btn-know { background-color: var(--primary-color); }
-        .btn-wrong { background-color: var(--wrong-color); }
 
-        /* Overlay */
-        .overlay-card {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); color: white; display: none;
-            flex-direction: column; justify-content: center; align-items: center;
-            z-index: 20; border-radius: var(--radius); text-align: center; padding: 20px;
-        }
-        .overlay-card h2 { font-size: 1.8rem; margin-bottom: 10px; }
-        .overlay-card button {
-            margin-top: 16px; padding: 10px 24px; background: var(--primary-color);
-            color: white; border: none; border-radius: 20px; font-weight: 800; cursor: pointer;
+        .btn-know {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 10px rgba(46,125,50,0.25);
         }
 
-        /* Table Style */
-        .vocab-table-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-top: 12px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f0f0f0; }
-        th { background: var(--primary-light); color: var(--primary-color); }
+        .btn-know:hover { background-color: var(--primary-hover); }
+
+        .btn-wrong {
+            background-color: var(--wrong-color);
+            color: white;
+            box-shadow: 0 4px 10px rgba(229,57,53,0.25);
+        }
+
+        .btn-wrong:hover { background-color: #c62828; }
+
+        .progress-container {
+            margin-top: 16px;
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Table Views */
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+
+        .search-box {
+            padding: 8px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 240px;
+            font-size: 0.9rem;
+        }
+
+        .vocab-table-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        th {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+
+        .eng-word { font-weight: 700; color: var(--text-dark); }
+        .kor-mean { color: #4a5568; }
+
+        /* Summary / Wrong View */
+        .summary-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 16px;
+            background: var(--bg-color);
+            border-radius: 10px;
+        }
+
+        .stat-item { display: flex; flexDirection: column; }
+        .stat-num { font-size: 1.6rem; font-weight: 800; }
+        .stat-num.wrong-cnt { color: var(--wrong-color); }
+        .stat-num.correct-cnt { color: var(--correct-color); }
+
+        .summary-btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .secondary-btn {
+            padding: 10px 16px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .primary-action-btn {
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 8px;
+        }
 
         .toast {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.85); color: white; padding: 10px 20px;
-            border-radius: 20px; font-size: 0.85rem; display: none; z-index: 1000;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.3rem; }
+            .card-question { font-size: 1.6rem; }
+            .card-answer { font-size: 1.4rem; }
+            .action-btns { flex-direction: column; }
+            .game-status-bar { flex-wrap: wrap; }
+            .xp-container { max-width: 100%; width: 100%; order: 3; }
         }
     </style>
 </head>
@@ -218,16 +521,41 @@
 
     <header>
         <h1>📖 영단어 암기 퀴즈</h1>
-        <p>게임 모드와 공부 모드로 맞춰 학습해보세요!</p>
+        <p>1형식부터 5형식 문장 구조 어휘 학습</p>
     </header>
 
     <div class="container">
 
+        <!-- 게임 상태 표시 바 (Gamification Bar) -->
+        <div class="game-status-bar">
+            <div class="stat-badge">
+                <span>👑</span>
+                <span class="level-title" id="levelDisplay">Lv.1 입문자</span>
+            </div>
+            <div class="stat-badge">
+                <span>⭐</span>
+                <span><span id="scoreDisplay">0</span>점</span>
+            </div>
+            <div class="combo-badge" id="comboBadge">
+                🔥 <span id="comboDisplay">0</span> COMBO!
+            </div>
+            <div class="xp-container">
+                <div class="xp-label">
+                    <span>XP</span>
+                    <span id="xpTextDisplay">0 / 50</span>
+                </div>
+                <div class="xp-bar-bg">
+                    <div class="xp-bar-fill" id="xpBarFill"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Control Panel -->
         <div class="controls-card">
             <div class="control-group">
+                <label for="unitSelect">단어장 유닛 선택</label>
                 <select id="unitSelect" onchange="changeUnit()">
-                    <option value="all">전체 유닛 (UNIT 01 ~ 05)</option>
+                    <option value="all">전체 (UNIT 01 ~ 05)</option>
                     <option value="unit1">UNIT 01: 문장을 이루는 요소 (43단어)</option>
                     <option value="unit2">UNIT 02: 1형식과 2형식 (47단어)</option>
                     <option value="unit3">UNIT 03: 3형식 동사+목적어 (35단어)</option>
@@ -236,17 +564,8 @@
                 </select>
             </div>
 
-            <!-- 학습 방식 토글 추가 (게임 모드 vs 공부 모드) -->
             <div class="option-row">
-                <span style="font-weight: 700; font-size: 0.88rem; color: var(--text-muted);">퀴즈 스타일</span>
-                <div class="toggle-group">
-                    <button id="styleGameBtn" class="toggle-btn active" onclick="setQuizStyle(true)">🎮 구출 게임</button>
-                    <button id="styleStudyBtn" class="toggle-btn" onclick="setQuizStyle(false)">📚 조용한 공부</button>
-                </div>
-            </div>
-
-            <div class="option-row">
-                <span style="font-weight: 700; font-size: 0.88rem; color: var(--text-muted);">출제 순서</span>
+                <label style="margin: 0;">단어 출제 순서</label>
                 <div class="toggle-group">
                     <button id="orderSeqBtn" class="toggle-btn active" onclick="setOrderMode(false)">🔢 순서대로</button>
                     <button id="orderRandBtn" class="toggle-btn" onclick="setOrderMode(true)">🔀 랜덤 섞기</button>
@@ -260,92 +579,93 @@
             </div>
         </div>
 
-        <!-- 1. Flashcard / Rescue View -->
+        <!-- 1. Flashcard / Quiz View -->
         <div id="flashcardView" class="view-section active">
-
-            <!-- 🎨 Rescue Graphic Stage (Game Mode Only) -->
-            <div class="rescue-stage" id="stageContainer">
-                <div class="stage-hud">
-                    <div class="hp-hearts" id="hpDisplay">❤️❤️❤️</div>
-                    <div class="timer-badge">⏱️ <span id="timerText">12</span>초</div>
-                </div>
-
-                <!-- SVG Bunny -->
-                <div class="character-wrapper anim-bounce" id="bunnyWrapper">
-                    <svg class="bunny-svg" viewBox="0 0 100 100">
-                        <ellipse cx="38" cy="22" rx="7" ry="20" fill="#ffffff" stroke="#333" stroke-width="3"/>
-                        <ellipse cx="38" cy="22" rx="4" ry="14" fill="#ffb74d"/>
-                        <ellipse cx="62" cy="22" rx="7" ry="20" fill="#ffffff" stroke="#333" stroke-width="3"/>
-                        <ellipse cx="62" cy="22" rx="4" ry="14" fill="#ffb74d"/>
-                        <circle cx="50" cy="55" r="28" fill="#ffffff" stroke="#333" stroke-width="3"/>
-                        <circle cx="34" cy="62" r="5" fill="#ff8a80" opacity="0.6"/>
-                        <circle cx="66" cy="62" r="5" fill="#ff8a80" opacity="0.6"/>
-                        <g id="bunnyFace">
-                            <circle cx="40" cy="52" r="3" fill="#333"/>
-                            <circle cx="60" cy="52" r="3" fill="#333"/>
-                            <path d="M 46 60 Q 50 63 54 60" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
-                        </g>
-                    </svg>
-                </div>
-
-                <!-- Lava -->
-                <div class="lava-container" id="lavaLayer">
-                    <svg class="lava-wave" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                        <path d="M0,0 C150,90 350,-40 500,60 C650,160 900,10 1200,40 L1200,120 L0,120 Z"></path>
-                    </svg>
-                </div>
-
-                <!-- Game Over / Victory Overlay -->
-                <div class="overlay-card" id="gameOverlay">
-                    <h2 id="overlayTitle">🚨 구출 실패!</h2>
-                    <p id="overlayDesc">용암이 차올라 토끼가 위험에 빠졌습니다!</p>
-                    <button onclick="resetRescueGame()">🔄 다시 구출하러 가기</button>
-                </div>
+            <div class="quiz-config">
+                <button id="modeKorToEng" class="mode-btn active" onclick="setQuizMode('korToEng')">한글 보고 영단어 맞추기</button>
+                <button id="modeEngToKor" class="mode-btn" onclick="setQuizMode('engToKor')">영단어 보고 한글 뜻 맞추기</button>
             </div>
 
-            <!-- Time Progress Bar -->
-            <div class="time-bar-bg">
-                <div class="time-bar-fill" id="timeBarFill"></div>
-            </div>
-
-            <!-- Quiz Card -->
-            <div class="flashcard-box" onclick="revealAnswer()">
+            <div class="flashcard-box" id="flashcard" onclick="revealAnswer()">
                 <div class="card-number" id="cardNumber">1 / 43</div>
-                <div class="card-question" id="cardQuestion">have a cold</div>
+                <div class="combo-effect-text" id="comboEffectText"></div>
+                <div class="card-question" id="cardQuestion">감기에 걸리다</div>
                 <div class="card-hint" id="cardHint">👆 클릭하여 정답 확인하기</div>
-                <div class="card-answer" id="cardAnswer">감기에 걸리다</div>
-                <button class="audio-btn" onclick="event.stopPropagation(); playCurrentAudio();">
-                    <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:currentColor;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                <div class="card-answer" id="cardAnswer">have a cold</div>
+                <button class="audio-icon-btn" id="audioBtn" onclick="event.stopPropagation(); playCurrentAudio();" title="발음 듣기">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    </svg>
                 </button>
             </div>
 
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
             <div class="action-btns">
-                <button class="btn-wrong" onclick="handleUserAnswer(false)">❌ 몰라요 (오답)</button>
-                <button class="btn-know" onclick="handleUserAnswer(true)">⭕ 맞았어요</button>
+                <button class="btn-wrong" onclick="markAnswer(false)">❌ 몰라요 (오답)</button>
+                <button class="btn-know" onclick="markAnswer(true)">⭕ 맞았어요</button>
             </div>
         </div>
 
-        <!-- 2. Sheet View -->
+        <!-- 2. Full Vocab Sheet View -->
         <div id="sheetView" class="view-section">
+            <div class="sheet-header">
+                <h3 id="sheetTitle" style="font-size: 1.1rem;">UNIT 01 문장을 이루는 요소</h3>
+                <input type="text" id="searchInput" class="search-box" placeholder="단어/뜻 검색..." oninput="filterSheet()">
+            </div>
             <div class="vocab-table-card">
                 <table>
                     <thead>
-                        <tr><th>번호</th><th>영어</th><th>뜻</th></tr>
+                        <tr>
+                            <th style="width: 10%;">번호</th>
+                            <th style="width: 40%;">어휘 (English)</th>
+                            <th style="width: 40%;">뜻 (Korean)</th>
+                            <th style="width: 10%; text-align: center;">발음</th>
+                        </tr>
                     </thead>
                     <tbody id="vocabTableBody"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 3. Wrong View -->
+        <!-- 3. Incorrect List / Note View -->
         <div id="wrongView" class="view-section">
-            <div class="vocab-table-card">
-                <table>
-                    <thead>
-                        <tr><th>유닛</th><th>영어</th><th>뜻</th></tr>
-                    </thead>
-                    <tbody id="wrongTableBody"></tbody>
-                </table>
+            <div class="summary-card">
+                <h2>✏️ 오답 노트 & 복습하기</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">퀴즈 중에 틀린 단어들을 모아보고 복습할 수 있습니다.</p>
+
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <span class="stat-num wrong-cnt" id="totalWrongCount">0</span>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">틀린 단어</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num correct-cnt" id="totalCorrectCount">0</span>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">맞힌 단어</span>
+                    </div>
+                </div>
+
+                <div class="summary-btn-group">
+                    <button class="primary-action-btn" onclick="startWrongOnlyQuiz()" id="btnRetryWrong" disabled>🔥 틀린 단어만 다시 퀴즈</button>
+                    <button class="secondary-btn" onclick="downloadWrongListText()">📥 텍스트 파일 저장 (.txt)</button>
+                    <button class="secondary-btn" onclick="copyWrongListToClipboard()">📋 클립보드 복사</button>
+                </div>
+
+                <div class="vocab-table-card" style="margin-top: 20px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">유닛</th>
+                                <th style="width: 40%;">어휘 (English)</th>
+                                <th style="width: 35%;">뜻 (Korean)</th>
+                                <th style="width: 10%; text-align: center;">발음</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wrongTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -354,1252 +674,427 @@
     <div id="toast" class="toast">메시지</div>
 
     <script>
-         // Vocabulary Full Master Data
+        // Vocabulary Master Data
         const vocabData = {
-  "unit1": {
-    "title": "UNIT 01 문장을 이루는 요소",
-    "words": [
-      {
-        "id": 1,
-        "eng": "have a cold",
-        "kor": "감기에 걸리다"
-      },
-      {
-        "id": 2,
-        "eng": "Chinese",
-        "kor": "중국어"
-      },
-      {
-        "id": 3,
-        "eng": "floor",
-        "kor": "바닥"
-      },
-      {
-        "id": 4,
-        "eng": "dirty",
-        "kor": "더러운"
-      },
-      {
-        "id": 5,
-        "eng": "plate",
-        "kor": "접시"
-      },
-      {
-        "id": 6,
-        "eng": "take a picture",
-        "kor": "사진을 찍다"
-      },
-      {
-        "id": 7,
-        "eng": "start",
-        "kor": "시작하다"
-      },
-      {
-        "id": 8,
-        "eng": "garden",
-        "kor": "정원"
-      },
-      {
-        "id": 9,
-        "eng": "favorite",
-        "kor": "가장 좋아하는"
-      },
-      {
-        "id": 10,
-        "eng": "subject",
-        "kor": "과목"
-      },
-      {
-        "id": 11,
-        "eng": "basketball",
-        "kor": "농구"
-      },
-      {
-        "id": 12,
-        "eng": "market",
-        "kor": "시장"
-      },
-      {
-        "id": 13,
-        "eng": "at that time",
-        "kor": "그때"
-      },
-      {
-        "id": 14,
-        "eng": "carry",
-        "kor": "나르다"
-      },
-      {
-        "id": 15,
-        "eng": "question",
-        "kor": "문제; 질문"
-      },
-      {
-        "id": 16,
-        "eng": "fix",
-        "kor": "고치다"
-      },
-      {
-        "id": 17,
-        "eng": "brave",
-        "kor": "용감한"
-      },
-      {
-        "id": 18,
-        "eng": "exciting",
-        "kor": "신나는"
-      },
-      {
-        "id": 19,
-        "eng": "cleanly",
-        "kor": "깨끗하게"
-      },
-      {
-        "id": 20,
-        "eng": "musical",
-        "kor": "뮤지컬"
-      },
-      {
-        "id": 21,
-        "eng": "draw",
-        "kor": "그리다"
-      },
-      {
-        "id": 22,
-        "eng": "smart",
-        "kor": "똑똑한"
-      },
-      {
-        "id": 23,
-        "eng": "concert",
-        "kor": "콘서트"
-      },
-      {
-        "id": 24,
-        "eng": "band",
-        "kor": "밴드"
-      },
-      {
-        "id": 25,
-        "eng": "fireworks",
-        "kor": "불꽃놀이"
-      },
-      {
-        "id": 26,
-        "eng": "writer",
-        "kor": "작가"
-      },
-      {
-        "id": 27,
-        "eng": "guitar",
-        "kor": "기타"
-      },
-      {
-        "id": 28,
-        "eng": "famous",
-        "kor": "유명한"
-      },
-      {
-        "id": 29,
-        "eng": "painter",
-        "kor": "화가"
-      },
-      {
-        "id": 30,
-        "eng": "cheap",
-        "kor": "값싼"
-      },
-      {
-        "id": 31,
-        "eng": "then",
-        "kor": "그때"
-      },
-      {
-        "id": 32,
-        "eng": "shy",
-        "kor": "수줍은"
-      },
-      {
-        "id": 33,
-        "eng": "miss",
-        "kor": "그리워하다"
-      },
-      {
-        "id": 34,
-        "eng": "bright",
-        "kor": "밝은"
-      },
-      {
-        "id": 35,
-        "eng": "beach",
-        "kor": "해변"
-      },
-      {
-        "id": 36,
-        "eng": "noise",
-        "kor": "소음"
-      },
-      {
-        "id": 37,
-        "eng": "careful",
-        "kor": "조심하는, 주의 깊은"
-      },
-      {
-        "id": 38,
-        "eng": "ready",
-        "kor": "준비가 된"
-      },
-      {
-        "id": 39,
-        "eng": "mistake",
-        "kor": "실수"
-      },
-      {
-        "id": 40,
-        "eng": "ending",
-        "kor": "결말"
-      },
-      {
-        "id": 41,
-        "eng": "throw",
-        "kor": "던지다"
-      },
-      {
-        "id": 42,
-        "eng": "empty",
-        "kor": "빈"
-      },
-      {
-        "id": 43,
-        "eng": "open",
-        "kor": "열리다; 열다"
-      }
-    ]
-  },
-  "unit2": {
-    "title": "UNIT 02 1형식과 2형식",
-    "words": [
-      {
-        "id": 1,
-        "eng": "look",
-        "kor": "~해 보이다"
-      },
-      {
-        "id": 2,
-        "eng": "sound",
-        "kor": "~하게 들리다"
-      },
-      {
-        "id": 3,
-        "eng": "smell",
-        "kor": "~한 냄새가 나다"
-      },
-      {
-        "id": 4,
-        "eng": "taste",
-        "kor": "~한 맛이 나다"
-      },
-      {
-        "id": 5,
-        "eng": "delicious",
-        "kor": "맛있는"
-      },
-      {
-        "id": 6,
-        "eng": "feel",
-        "kor": "~하게 느껴지다"
-      },
-      {
-        "id": 7,
-        "eng": "bark",
-        "kor": "(개가) 짖다"
-      },
-      {
-        "id": 8,
-        "eng": "loudly",
-        "kor": "큰 소리로"
-      },
-      {
-        "id": 9,
-        "eng": "voice",
-        "kor": "목소리"
-      },
-      {
-        "id": 10,
-        "eng": "pillow",
-        "kor": "베개"
-      },
-      {
-        "id": 11,
-        "eng": "softly",
-        "kor": "부드럽게"
-      },
-      {
-        "id": 12,
-        "eng": "sweet",
-        "kor": "달콤한, 단"
-      },
-      {
-        "id": 13,
-        "eng": "laugh",
-        "kor": "웃다"
-      },
-      {
-        "id": 14,
-        "eng": "hard",
-        "kor": "열심히"
-      },
-      {
-        "id": 15,
-        "eng": "ring",
-        "kor": "울리다"
-      },
-      {
-        "id": 16,
-        "eng": "stop",
-        "kor": "정류장, 정거장"
-      },
-      {
-        "id": 17,
-        "eng": "beautiful",
-        "kor": "아름다운"
-      },
-      {
-        "id": 18,
-        "eng": "rise",
-        "kor": "(해, 달이) 뜨다"
-      },
-      {
-        "id": 19,
-        "eng": "scarf",
-        "kor": "스카프"
-      },
-      {
-        "id": 20,
-        "eng": "soft",
-        "kor": "부드러운"
-      },
-      {
-        "id": 21,
-        "eng": "bench",
-        "kor": "벤치"
-      },
-      {
-        "id": 22,
-        "eng": "office",
-        "kor": "사무실"
-      },
-      {
-        "id": 23,
-        "eng": "weather",
-        "kor": "날씨"
-      },
-      {
-        "id": 24,
-        "eng": "lie",
-        "kor": "거짓말; 거짓말하다"
-      },
-      {
-        "id": 25,
-        "eng": "interesting",
-        "kor": "재미있는"
-      },
-      {
-        "id": 26,
-        "eng": "angrily",
-        "kor": "화가 나서"
-      },
-      {
-        "id": 27,
-        "eng": "young",
-        "kor": "어린, 젊은"
-      },
-      {
-        "id": 28,
-        "eng": "sour",
-        "kor": "(맛이) 신"
-      },
-      {
-        "id": 29,
-        "eng": "arrive",
-        "kor": "도착하다"
-      },
-      {
-        "id": 30,
-        "eng": "airport",
-        "kor": "공항"
-      },
-      {
-        "id": 31,
-        "eng": "idea",
-        "kor": "생각, 아이디어"
-      },
-      {
-        "id": 32,
-        "eng": "perfectly",
-        "kor": "완벽하게"
-      },
-      {
-        "id": 33,
-        "eng": "quick",
-        "kor": "빠른"
-      },
-      {
-        "id": 34,
-        "eng": "sweater",
-        "kor": "스웨터"
-      },
-      {
-        "id": 35,
-        "eng": "set",
-        "kor": "(해·달이) 지다"
-      },
-      {
-        "id": 36,
-        "eng": "moon",
-        "kor": "달"
-      },
-      {
-        "id": 37,
-        "eng": "shine",
-        "kor": "빛나다"
-      },
-      {
-        "id": 38,
-        "eng": "leaf",
-        "kor": "(나뭇)잎"
-      },
-      {
-        "id": 39,
-        "eng": "fall",
-        "kor": "떨어지다"
-      },
-      {
-        "id": 40,
-        "eng": "autumn",
-        "kor": "가을"
-      },
-      {
-        "id": 41,
-        "eng": "flow",
-        "kor": "흐르다"
-      },
-      {
-        "id": 42,
-        "eng": "plant",
-        "kor": "식물"
-      },
-      {
-        "id": 43,
-        "eng": "tourist",
-        "kor": "관광객"
-      },
-      {
-        "id": 44,
-        "eng": "village",
-        "kor": "마을"
-      },
-      {
-        "id": 45,
-        "eng": "soon",
-        "kor": "곧"
-      },
-      {
-        "id": 46,
-        "eng": "cousin",
-        "kor": "사촌"
-      },
-      {
-        "id": 47,
-        "eng": "living room",
-        "kor": "거실"
-      }
-    ]
-  },
-  "unit3": {
-    "title": "UNIT 03 3형식 (동사+목적어)",
-    "words": [
-      {
-        "id": 1,
-        "eng": "sell",
-        "kor": "팔다"
-      },
-      {
-        "id": 2,
-        "eng": "fresh",
-        "kor": "신선한"
-      },
-      {
-        "id": 3,
-        "eng": "weekend",
-        "kor": "주말"
-      },
-      {
-        "id": 4,
-        "eng": "snack",
-        "kor": "간식"
-      },
-      {
-        "id": 5,
-        "eng": "science",
-        "kor": "과학"
-      },
-      {
-        "id": 6,
-        "eng": "break",
-        "kor": "깨뜨리다"
-      },
-      {
-        "id": 7,
-        "eng": "vase",
-        "kor": "꽃병"
-      },
-      {
-        "id": 8,
-        "eng": "bring",
-        "kor": "가져오다"
-      },
-      {
-        "id": 9,
-        "eng": "draw",
-        "kor": "그리다"
-      },
-      {
-        "id": 10,
-        "eng": "wall",
-        "kor": "벽"
-      },
-      {
-        "id": 11,
-        "eng": "a glass of",
-        "kor": "한 잔의"
-      },
-      {
-        "id": 12,
-        "eng": "build",
-        "kor": "짓다"
-      },
-      {
-        "id": 13,
-        "eng": "in class",
-        "kor": "수업 중에"
-      },
-      {
-        "id": 14,
-        "eng": "practice",
-        "kor": "연습하다"
-      },
-      {
-        "id": 15,
-        "eng": "exam",
-        "kor": "시험"
-      },
-      {
-        "id": 16,
-        "eng": "invite",
-        "kor": "초대하다"
-      },
-      {
-        "id": 17,
-        "eng": "parents",
-        "kor": "부모"
-      },
-      {
-        "id": 18,
-        "eng": "understand",
-        "kor": "이해하다"
-      },
-      {
-        "id": 19,
-        "eng": "free",
-        "kor": "자유로운; 무료의"
-      },
-      {
-        "id": 20,
-        "eng": "spicy",
-        "kor": "매운"
-      },
-      {
-        "id": 21,
-        "eng": "scissors",
-        "kor": "가위"
-      },
-      {
-        "id": 22,
-        "eng": "history",
-        "kor": "역사"
-      },
-      {
-        "id": 23,
-        "eng": "learn",
-        "kor": "배우다"
-      },
-      {
-        "id": 24,
-        "eng": "move",
-        "kor": "옮기다"
-      },
-      {
-        "id": 25,
-        "eng": "corner",
-        "kor": "(방, 상자의) 구석"
-      },
-      {
-        "id": 26,
-        "eng": "solve",
-        "kor": "해결하다, 풀다"
-      },
-      {
-        "id": 27,
-        "eng": "borrow",
-        "kor": "빌리다"
-      },
-      {
-        "id": 28,
-        "eng": "kick",
-        "kor": "(발로) 차다"
-      },
-      {
-        "id": 29,
-        "eng": "remember",
-        "kor": "기억하다"
-      },
-      {
-        "id": 30,
-        "eng": "get",
-        "kor": "받다"
-      },
-      {
-        "id": 31,
-        "eng": "board game",
-        "kor": "보드게임"
-      },
-      {
-        "id": 32,
-        "eng": "water",
-        "kor": "물을 주다"
-      },
-      {
-        "id": 33,
-        "eng": "join",
-        "kor": "가입하다"
-      },
-      {
-        "id": 34,
-        "eng": "pick",
-        "kor": "(과일을) 따다"
-      },
-      {
-        "id": 35,
-        "eng": "chef",
-        "kor": "요리사"
-      }
-    ]
-  },
-  "unit4": {
-    "title": "UNIT 04 4형식 (동사+목적어+목적어)",
-    "words": [
-      {
-        "id": 1,
-        "eng": "gift",
-        "kor": "선물"
-      },
-      {
-        "id": 2,
-        "eng": "show",
-        "kor": "보여 주다"
-      },
-      {
-        "id": 3,
-        "eng": "video",
-        "kor": "영상, 비디오"
-      },
-      {
-        "id": 4,
-        "eng": "bring",
-        "kor": "가져다주다"
-      },
-      {
-        "id": 5,
-        "eng": "secret",
-        "kor": "비밀"
-      },
-      {
-        "id": 6,
-        "eng": "picture",
-        "kor": "사진, 그림"
-      },
-      {
-        "id": 7,
-        "eng": "letter",
-        "kor": "편지"
-      },
-      {
-        "id": 8,
-        "eng": "sweater",
-        "kor": "스웨터"
-      },
-      {
-        "id": 9,
-        "eng": "album",
-        "kor": "앨범"
-      },
-      {
-        "id": 10,
-        "eng": "juice",
-        "kor": "주스"
-      },
-      {
-        "id": 11,
-        "eng": "message",
-        "kor": "메시지"
-      },
-      {
-        "id": 12,
-        "eng": "medicine",
-        "kor": "약"
-      },
-      {
-        "id": 13,
-        "eng": "child",
-        "kor": "아이"
-      },
-      {
-        "id": 14,
-        "eng": "chocolate",
-        "kor": "초콜릿"
-      },
-      {
-        "id": 15,
-        "eng": "cousin",
-        "kor": "사촌"
-      },
-      {
-        "id": 16,
-        "eng": "coach",
-        "kor": "(스포츠팀의) 코치"
-      },
-      {
-        "id": 17,
-        "eng": "rule",
-        "kor": "규칙"
-      },
-      {
-        "id": 18,
-        "eng": "noodle",
-        "kor": "국수"
-      },
-      {
-        "id": 19,
-        "eng": "recipe",
-        "kor": "레시피, 조리법"
-      },
-      {
-        "id": 20,
-        "eng": "guest",
-        "kor": "손님"
-      },
-      {
-        "id": 21,
-        "eng": "bracelet",
-        "kor": "팔찌"
-      },
-      {
-        "id": 22,
-        "eng": "surprising",
-        "kor": "놀라운"
-      },
-      {
-        "id": 23,
-        "eng": "hard",
-        "kor": "어려운"
-      },
-      {
-        "id": 24,
-        "eng": "truth",
-        "kor": "사실"
-      },
-      {
-        "id": 25,
-        "eng": "postcard",
-        "kor": "엽서"
-      },
-      {
-        "id": 26,
-        "eng": "lie",
-        "kor": "거짓말"
-      },
-      {
-        "id": 27,
-        "eng": "backpack",
-        "kor": "책가방, 배낭"
-      },
-      {
-        "id": 28,
-        "eng": "magic trick",
-        "kor": "마술 묘기"
-      },
-      {
-        "id": 29,
-        "eng": "map",
-        "kor": "지도"
-      },
-      {
-        "id": 30,
-        "eng": "present",
-        "kor": "선물"
-      },
-      {
-        "id": 31,
-        "eng": "number",
-        "kor": "번호"
-      },
-      {
-        "id": 32,
-        "eng": "word",
-        "kor": "단어"
-      },
-      {
-        "id": 33,
-        "eng": "calendar",
-        "kor": "달력"
-      },
-      {
-        "id": 34,
-        "eng": "hot chocolate",
-        "kor": "핫쇼코, 코코아"
-      }
-    ]
-  },
-  "unit5": {
-    "title": "UNIT 05 5형식 (동사+목적어+보어)",
-    "words": [
-      {
-        "id": 1,
-        "eng": "joke",
-        "kor": "농담"
-      },
-      {
-        "id": 2,
-        "eng": "keep",
-        "kor": "(특정 상태를) 유지하다"
-      },
-      {
-        "id": 3,
-        "eng": "find",
-        "kor": "~하다고 알게 되다"
-      },
-      {
-        "id": 4,
-        "eng": "difficult",
-        "kor": "어려운"
-      },
-      {
-        "id": 5,
-        "eng": "famous",
-        "kor": "유명한"
-      },
-      {
-        "id": 6,
-        "eng": "plant",
-        "kor": "식물"
-      },
-      {
-        "id": 7,
-        "eng": "healthy",
-        "kor": "건강한"
-      },
-      {
-        "id": 8,
-        "eng": "interesting",
-        "kor": "재미있는"
-      },
-      {
-        "id": 9,
-        "eng": "warm",
-        "kor": "따뜻한"
-      },
-      {
-        "id": 10,
-        "eng": "boring",
-        "kor": "지루한"
-      },
-      {
-        "id": 11,
-        "eng": "proud",
-        "kor": "자랑스러운"
-      },
-      {
-        "id": 12,
-        "eng": "honest",
-        "kor": "정직한"
-      },
-      {
-        "id": 13,
-        "eng": "seat belt",
-        "kor": "안전벨트"
-      },
-      {
-        "id": 14,
-        "eng": "wet",
-        "kor": "젖은"
-      },
-      {
-        "id": 15,
-        "eng": "brave",
-        "kor": "용감한"
-      },
-      {
-        "id": 16,
-        "eng": "exercise",
-        "kor": "운동"
-      },
-      {
-        "id": 17,
-        "eng": "hero",
-        "kor": "영웅"
-      },
-      {
-        "id": 18,
-        "eng": "nail",
-        "kor": "손톱"
-      },
-      {
-        "id": 19,
-        "eng": "thirsty",
-        "kor": "목마른"
-      },
-      {
-        "id": 20,
-        "eng": "neighbor",
-        "kor": "이웃"
-      },
-      {
-        "id": 21,
-        "eng": "exciting",
-        "kor": "재미있는"
-      },
-      {
-        "id": 22,
-        "eng": "smell",
-        "kor": "냄새"
-      },
-      {
-        "id": 23,
-        "eng": "oven",
-        "kor": "오븐"
-      },
-      {
-        "id": 24,
-        "eng": "sharp",
-        "kor": "날카로운"
-      },
-      {
-        "id": 25,
-        "eng": "specially",
-        "kor": "특별히"
-      },
-      {
-        "id": 26,
-        "eng": "simple",
-        "kor": "간단한"
-      },
-      {
-        "id": 27,
-        "eng": "worried",
-        "kor": "걱정하는"
-      },
-      {
-        "id": 28,
-        "eng": "Earth",
-        "kor": "지구"
-      },
-      {
-        "id": 29,
-        "eng": "dry",
-        "kor": "마른, 건조한"
-      },
-      {
-        "id": 30,
-        "eng": "problem",
-        "kor": "문제"
-      },
-      {
-        "id": 31,
-        "eng": "calm",
-        "kor": "차분한, 침착한"
-      },
-      {
-        "id": 32,
-        "eng": "expensive",
-        "kor": "비싼"
-      },
-      {
-        "id": 33,
-        "eng": "blanket",
-        "kor": "담요"
-      },
-      {
-        "id": 34,
-        "eng": "show",
-        "kor": "공연"
-      },
-      {
-        "id": 35,
-        "eng": "clear",
-        "kor": "분명한"
-      }
-    ]
-  }
-};
+          "unit1": {
+            "title": "UNIT 01 문장을 이루는 요소",
+            "words": [
+              { "id": 1, "eng": "have a cold", "kor": "감기에 걸리다" },
+              { "id": 2, "eng": "Chinese", "kor": "중국어" },
+              { "id": 3, "eng": "floor", "kor": "바닥" },
+              { "id": 4, "eng": "dirty", "kor": "더러운" },
+              { "id": 5, "eng": "plate", "kor": "접시" },
+              { "id": 6, "eng": "take a picture", "kor": "사진을 찍다" },
+              { "id": 7, "eng": "start", "kor": "시작하다" },
+              { "id": 8, "eng": "garden", "kor": "정원" },
+              { "id": 9, "eng": "favorite", "kor": "가장 좋아하는" },
+              { "id": 10, "eng": "subject", "kor": "과목" },
+              { "id": 11, "eng": "basketball", "kor": "농구" },
+              { "id": 12, "eng": "market", "kor": "시장" },
+              { "id": 13, "eng": "at that time", "kor": "그때" },
+              { "id": 14, "eng": "carry", "kor": "나르다" },
+              { "id": 15, "eng": "question", "kor": "문제; 질문" },
+              { "id": 16, "eng": "fix", "kor": "고치다" },
+              { "id": 17, "eng": "brave", "kor": "용감한" },
+              { "id": 18, "eng": "exciting", "kor": "신나는" },
+              { "id": 19, "eng": "cleanly", "kor": "깨끗하게" },
+              { "id": 20, "eng": "musical", "kor": "뮤지컬" },
+              { "id": 21, "eng": "draw", "kor": "그리다" },
+              { "id": 22, "eng": "smart", "kor": "똑똑한" },
+              { "id": 23, "eng": "concert", "kor": "콘서트" },
+              { "id": 24, "eng": "band", "kor": "밴드" },
+              { "id": 25, "eng": "fireworks", "kor": "불꽃놀이" },
+              { "id": 26, "eng": "writer", "kor": "작가" },
+              { "id": 27, "eng": "guitar", "kor": "기타" },
+              { "id": 28, "eng": "famous", "kor": "유명한" },
+              { "id": 29, "eng": "painter", "kor": "화가" },
+              { "id": 30, "eng": "cheap", "kor": "값싼" },
+              { "id": 31, "eng": "then", "kor": "그때" },
+              { "id": 32, "eng": "shy", "kor": "수줍은" },
+              { "id": 33, "eng": "miss", "kor": "그리워하다" },
+              { "id": 34, "eng": "bright", "kor": "밝은" },
+              { "id": 35, "eng": "beach", "kor": "해변" },
+              { "id": 36, "eng": "noise", "kor": "소음" },
+              { "id": 37, "eng": "careful", "kor": "조심하는, 주의 깊은" },
+              { "id": 38, "eng": "ready", "kor": "준비가 된" },
+              { "id": 39, "eng": "mistake", "kor": "실수" },
+              { "id": 40, "eng": "ending", "kor": "결말" },
+              { "id": 41, "eng": "throw", "kor": "던지다" },
+              { "id": 42, "eng": "empty", "kor": "빈" },
+              { "id": 43, "eng": "open", "kor": "열리다; 열다" }
+            ]
+          },
+          "unit2": {
+            "title": "UNIT 02 1형식과 2형식",
+            "words": [
+              { "id": 1, "eng": "look", "kor": "~해 보이다" },
+              { "id": 2, "eng": "sound", "kor": "~하게 들리다" },
+              { "id": 3, "eng": "smell", "kor": "~한 냄새가 나다" },
+              { "id": 4, "eng": "taste", "kor": "~한 맛이 나다" },
+              { "id": 5, "eng": "delicious", "kor": "맛있는" },
+              { "id": 6, "eng": "feel", "kor": "~하게 느껴지다" },
+              { "id": 7, "eng": "bark", "kor": "(개가) 짖다" },
+              { "id": 8, "eng": "loudly", "kor": "큰 소리로" },
+              { "id": 9, "eng": "voice", "kor": "목소리" },
+              { "id": 10, "eng": "pillow", "kor": "베개" },
+              { "id": 11, "eng": "softly", "kor": "부드럽게" },
+              { "id": 12, "eng": "sweet", "kor": "달콤한, 단" },
+              { "id": 13, "eng": "laugh", "kor": "웃다" },
+              { "id": 14, "eng": "hard", "kor": "열심히" },
+              { "id": 15, "eng": "ring", "kor": "울리다" },
+              { "id": 16, "eng": "stop", "kor": "정류장, 정거장" },
+              { "id": 17, "eng": "beautiful", "kor": "아름다운" },
+              { "id": 18, "eng": "rise", "kor": "(해, 달이) 뜨다" },
+              { "id": 19, "eng": "scarf", "kor": "스카프" },
+              { "id": 20, "eng": "soft", "kor": "부드러운" },
+              { "id": 21, "eng": "bench", "kor": "벤치" },
+              { "id": 22, "eng": "office", "kor": "사무실" },
+              { "id": 23, "eng": "weather", "kor": "날씨" },
+              { "id": 24, "eng": "lie", "kor": "거짓말; 거짓말하다" },
+              { "id": 25, "eng": "interesting", "kor": "재미있는" },
+              { "id": 26, "eng": "angrily", "kor": "화가 나서" },
+              { "id": 27, "eng": "young", "kor": "어린, 젊은" },
+              { "id": 28, "eng": "sour", "kor": "(맛이) 신" },
+              { "id": 29, "eng": "arrive", "kor": "도착하다" },
+              { "id": 30, "eng": "airport", "kor": "공항" },
+              { "id": 31, "eng": "idea", "kor": "생각, 아이디어" },
+              { "id": 32, "eng": "perfectly", "kor": "완벽하게" },
+              { "id": 33, "eng": "quick", "kor": "빠른" },
+              { "id": 34, "eng": "sweater", "kor": "스웨터" },
+              { "id": 35, "eng": "set", "kor": "(해·달이) 지다" },
+              { "id": 36, "eng": "moon", "kor": "달" },
+              { "id": 37, "eng": "shine", "kor": "빛나다" },
+              { "id": 38, "eng": "leaf", "kor": "(나뭇)잎" },
+              { "id": 39, "eng": "fall", "kor": "떨어지다" },
+              { "id": 40, "eng": "autumn", "kor": "가을" },
+              { "id": 41, "eng": "flow", "kor": "흐르다" },
+              { "id": 42, "eng": "plant", "kor": "식물" },
+              { "id": 43, "eng": "tourist", "kor": "관광객" },
+              { "id": 44, "eng": "village", "kor": "마을" },
+              { "id": 45, "eng": "soon", "kor": "곧" },
+              { "id": 46, "eng": "cousin", "kor": "사촌" },
+              { "id": 47, "eng": "living room", "kor": "거실" }
+            ]
+          },
+          "unit3": {
+            "title": "UNIT 03 3형식 (동사+목적어)",
+            "words": [
+              { "id": 1, "eng": "sell", "kor": "팔다" },
+              { "id": 2, "eng": "fresh", "kor": "신선한" },
+              { "id": 3, "eng": "weekend", "kor": "주말" },
+              { "id": 4, "eng": "snack", "kor": "간식" },
+              { "id": 5, "eng": "science", "kor": "과학" },
+              { "id": 6, "eng": "break", "kor": "깨뜨리다" },
+              { "id": 7, "eng": "vase", "kor": "꽃병" },
+              { "id": 8, "eng": "bring", "kor": "가져오다" },
+              { "id": 9, "eng": "draw", "kor": "그리다" },
+              { "id": 10, "eng": "wall", "kor": "벽" },
+              { "id": 11, "eng": "a glass of", "kor": "한 잔의" },
+              { "id": 12, "eng": "build", "kor": "짓다" },
+              { "id": 13, "eng": "in class", "kor": "수업 중에" },
+              { "id": 14, "eng": "practice", "kor": "연습하다" },
+              { "id": 15, "eng": "exam", "kor": "시험" },
+              { "id": 16, "eng": "invite", "kor": "초대하다" },
+              { "id": 17, "eng": "parents", "kor": "부모" },
+              { "id": 18, "eng": "understand", "kor": "이해하다" },
+              { "id": 19, "eng": "free", "kor": "자유로운; 무료의" },
+              { "id": 20, "eng": "spicy", "kor": "매운" },
+              { "id": 21, "eng": "scissors", "kor": "가위" },
+              { "id": 22, "eng": "history", "kor": "역사" },
+              { "id": 23, "eng": "learn", "kor": "배우다" },
+              { "id": 24, "eng": "move", "kor": "옮기다" },
+              { "id": 25, "eng": "corner", "kor": "(방, 상자의) 구석" },
+              { "id": 26, "eng": "solve", "kor": "해결하다, 풀다" },
+              { "id": 27, "eng": "borrow", "kor": "빌리다" },
+              { "id": 28, "eng": "kick", "kor": "(발로) 차다" },
+              { "id": 29, "eng": "remember", "kor": "기억하다" },
+              { "id": 30, "eng": "get", "kor": "받다" },
+              { "id": 31, "eng": "board game", "kor": "보드게임" },
+              { "id": 32, "eng": "water", "kor": "물을 주다" },
+              { "id": 33, "eng": "join", "kor": "가입하다" },
+              { "id": 34, "eng": "pick", "kor": "(과일을) 따다" },
+              { "id": 35, "eng": "chef", "kor": "요리사" }
+            ]
+          },
+          "unit4": {
+            "title": "UNIT 04 4형식 (동사+목적어+목적어)",
+            "words": [
+              { "id": 1, "eng": "gift", "kor": "선물" },
+              { "id": 2, "eng": "show", "kor": "보여 주다" },
+              { "id": 3, "eng": "video", "kor": "영상, 비디오" },
+              { "id": 4, "eng": "bring", "kor": "가져다주다" },
+              { "id": 5, "eng": "secret", "kor": "비밀" },
+              { "id": 6, "eng": "picture", "kor": "사진, 그림" },
+              { "id": 7, "eng": "letter", "kor": "편지" },
+              { "id": 8, "eng": "sweater", "kor": "스웨터" },
+              { "id": 9, "eng": "album", "kor": "앨범" },
+              { "id": 10, "eng": "juice", "kor": "주스" },
+              { "id": 11, "eng": "message", "kor": "메시지" },
+              { "id": 12, "eng": "medicine", "kor": "약" },
+              { "id": 13, "eng": "child", "kor": "아이" },
+              { "id": 14, "eng": "chocolate", "kor": "초콜릿" },
+              { "id": 15, "eng": "cousin", "kor": "사촌" },
+              { "id": 16, "eng": "coach", "kor": "(스포츠팀의) 코치" },
+              { "id": 17, "eng": "rule", "kor": "규칙" },
+              { "id": 18, "eng": "noodle", "kor": "국수" },
+              { "id": 19, "eng": "recipe", "kor": "레시피, 조리법" },
+              { "id": 20, "eng": "guest", "kor": "손님" },
+              { "id": 21, "eng": "bracelet", "kor": "팔찌" },
+              { "id": 22, "eng": "surprising", "kor": "놀라운" },
+              { "id": 23, "eng": "hard", "kor": "어려운" },
+              { "id": 24, "eng": "truth", "kor": "사실" },
+              { "id": 25, "eng": "postcard", "kor": "엽서" },
+              { "id": 26, "eng": "lie", "kor": "거짓말" },
+              { "id": 27, "eng": "backpack", "kor": "책가방, 배낭" },
+              { "id": 28, "eng": "magic trick", "kor": "마술 묘기" },
+              { "id": 29, "eng": "map", "kor": "지도" },
+              { "id": 30, "eng": "present", "kor": "선물" },
+              { "id": 31, "eng": "number", "kor": "번호" },
+              { "id": 32, "eng": "word", "kor": "단어" },
+              { "id": 33, "eng": "calendar", "kor": "달력" },
+              { "id": 34, "eng": "hot chocolate", "kor": "핫쇼코, 코코아" }
+            ]
+          },
+          "unit5": {
+            "title": "UNIT 05 5형식 (동사+목적어+보어)",
+            "words": [
+              { "id": 1, "eng": "joke", "kor": "농담" },
+              { "id": 2, "eng": "keep", "kor": "(특정 상태를) 유지하다" },
+              { "id": 3, "eng": "find", "kor": "~하다고 알게 되다" },
+              { "id": 4, "eng": "difficult", "kor": "어려운" },
+              { "id": 5, "eng": "famous", "kor": "유명한" },
+              { "id": 6, "eng": "plant", "kor": "식물" },
+              { "id": 7, "eng": "healthy", "kor": "건강한" },
+              { "id": 8, "eng": "interesting", "kor": "재미있는" },
+              { "id": 9, "eng": "warm", "kor": "따뜻한" },
+              { "id": 10, "eng": "boring", "kor": "지루한" },
+              { "id": 11, "eng": "proud", "kor": "자랑스러운" },
+              { "id": 12, "eng": "honest", "kor": "정직한" },
+              { "id": 13, "eng": "seat belt", "kor": "안전벨트" },
+              { "id": 14, "eng": "wet", "kor": "젖은" },
+              { "id": 15, "eng": "brave", "kor": "용감한" },
+              { "id": 16, "eng": "exercise", "kor": "운동" },
+              { "id": 17, "eng": "hero", "kor": "영웅" },
+              { "id": 18, "eng": "nail", "kor": "손톱" },
+              { "id": 19, "eng": "thirsty", "kor": "목마른" },
+              { "id": 20, "eng": "neighbor", "kor": "이웃" },
+              { "id": 21, "eng": "exciting", "kor": "재미있는" },
+              { "id": 22, "eng": "smell", "kor": "냄새" },
+              { "id": 23, "eng": "oven", "kor": "오븐" },
+              { "id": 24, "eng": "sharp", "kor": "날카로운" },
+              { "id": 25, "eng": "specially", "kor": "특별히" },
+              { "id": 26, "eng": "simple", "kor": "간단한" },
+              { "id": 27, "eng": "worried", "kor": "걱정하는" },
+              { "id": 28, "eng": "Earth", "kor": "지구" },
+              { "id": 29, "eng": "dry", "kor": "마른, 건조한" },
+              { "id": 30, "eng": "problem", "kor": "문제" },
+              { "id": 31, "eng": "calm", "kor": "차분한, 침착한" },
+              { "id": 32, "eng": "expensive", "kor": "비싼" },
+              { "id": 33, "eng": "blanket", "kor": "담요" },
+              { "id": 34, "eng": "show", "kor": "공연" },
+              { "id": 35, "eng": "clear", "kor": "분명한" }
+            ]
+          }
+        };
 
-        const MAX_HP = 3;
-        const QUESTION_TIME = 12;
+        // App Game Levels Config
+        const levelTitles = [
+            "Lv.1 단어 입문자",
+            "Lv.2 단어 탐험가",
+            "Lv.3 어휘 루키",
+            "Lv.4 어휘 마스터",
+            "Lv.5 영단어 챔피언",
+            "Lv.6 언어의 신"
+        ];
 
+        // State Variables
+        let currentUnitKey = 'all';
         let currentList = [];
         let wrongList = [];
+        let correctList = [];
         let currentIndex = 0;
-        let isRandom = false;
-        let isGameStyle = true; // Toggle Mode (Game vs Study)
         let isAnswerRevealed = false;
+        let quizMode = 'korToEng'; 
+        let isRandom = false; // Order State
 
-        let hp = MAX_HP;
-        let lavaHeight = 15;
-        let bunnyBottom = 25;
-        let timer = QUESTION_TIME;
-        let timerInterval = null;
+        // Gamification States
+        let score = 0;
+        let combo = 0;
+        let xp = 0;
+        let level = 0;
 
-        function playSound(type) {
+        // Sound FX Engine (Web Audio API)
+        function playEffectSound(type) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain); gain.connect(ctx.destination);
-
                 if (type === 'correct') {
-                    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                    osc.start(); osc.stop(ctx.currentTime + 0.25);
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.16); // G5
+                    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.3);
                 } else if (type === 'wrong') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(180, ctx.currentTime);
-                    osc.frequency.setValueAtTime(110, ctx.currentTime + 0.15);
+                    osc.frequency.setValueAtTime(130, ctx.currentTime + 0.12);
                     gain.gain.setValueAtTime(0.12, ctx.currentTime);
-                    osc.start(); osc.stop(ctx.currentTime + 0.3);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.25);
+                } else if (type === 'levelup') {
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.07);
+                        gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.07);
+                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.07 + 0.2);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(ctx.currentTime + i * 0.07);
+                        osc.stop(ctx.currentTime + i * 0.07 + 0.2);
+                    });
                 }
             } catch(e) {}
         }
 
+        // Initialize App
         window.addEventListener('DOMContentLoaded', () => {
             changeUnit();
+            updateGameStatusUI();
         });
 
-        function setQuizStyle(isGame) {
-            isGameStyle = isGame;
-            document.getElementById('styleGameBtn').classList.toggle('active', isGameStyle);
-            document.getElementById('styleStudyBtn').classList.toggle('active', !isGameStyle);
+        function getAllWords() {
+            let all = [];
+            Object.keys(vocabData).forEach(key => {
+                vocabData[key].words.forEach(w => {
+                    all.push({ ...w, unitTitle: vocabData[key].title.split(' ')[1] || vocabData[key].title });
+                });
+            });
+            return all;
+        }
 
-            const flashcardView = document.getElementById('flashcardView');
-            if (isGameStyle) {
-                flashcardView.classList.remove('study-mode');
-                resetRescueGame();
-                showToast("🎮 구출 게임 모드로 변경되었습니다!");
-            } else {
-                flashcardView.classList.add('study-mode');
-                clearInterval(timerInterval);
-                document.getElementById('gameOverlay').style.display = 'none';
-                showToast("📚 조용한 공부 모드로 변경되었습니다.");
+        function getWordsForUnit(unitKey) {
+            let list = [];
+            if (unitKey === 'all') {
+                list = getAllWords();
+            } else if (vocabData[unitKey]) {
+                list = vocabData[unitKey].words.map(w => ({
+                    ...w,
+                    unitTitle: vocabData[unitKey].title.split(' ')[1] || vocabData[unitKey].title
+                }));
             }
+            return list;
+        }
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function setOrderMode(randomMode) {
+            isRandom = randomMode;
+            document.getElementById('orderSeqBtn').classList.toggle('active', !isRandom);
+            document.getElementById('orderRandBtn').classList.toggle('active', isRandom);
+            changeUnit(); // Re-fetch & reload list
+            showToast(isRandom ? "🔀 단어를 랜덤하게 섞었습니다!" : "🔢 단어를 순서대로 배치했습니다.");
         }
 
         function changeUnit() {
-            const key = document.getElementById('unitSelect').value;
-            let list = [];
-            if (key === 'all') {
-                Object.keys(vocabData).forEach(k => list.push(...vocabData[k].words));
-            } else if (vocabData[key]) {
-                list = [...vocabData[key].words];
+            currentUnitKey = document.getElementById('unitSelect').value;
+            let rawList = getWordsForUnit(currentUnitKey);
+
+            if (isRandom) {
+                currentList = shuffleArray(rawList);
+            } else {
+                currentList = rawList;
             }
 
-            currentList = isRandom ? shuffleArray(list) : list;
             currentIndex = 0;
-            if (isGameStyle) resetRescueGame();
-            else renderFlashcard();
+            renderFlashcard();
             renderSheet();
         }
 
-        function setOrderMode(random) {
-            isRandom = random;
-            document.getElementById('orderSeqBtn').classList.toggle('active', !isRandom);
-            document.getElementById('orderRandBtn').classList.toggle('active', isRandom);
-            changeUnit();
-        }
-
-        function shuffleArray(arr) {
-            return [...arr].sort(() => Math.random() - 0.5);
-        }
-
-        function resetRescueGame() {
-            hp = MAX_HP;
-            lavaHeight = 15;
-            bunnyBottom = 25;
-            document.getElementById('gameOverlay').style.display = 'none';
-            updateStageUI();
+        function setQuizMode(mode) {
+            quizMode = mode;
+            document.getElementById('modeKorToEng').classList.toggle('active', mode === 'korToEng');
+            document.getElementById('modeEngToKor').classList.toggle('active', mode === 'engToKor');
             renderFlashcard();
         }
 
-        function startTimer() {
-            if (!isGameStyle) return; // Don't run timer in Study Mode
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
 
-            clearInterval(timerInterval);
-            timer = QUESTION_TIME;
-            updateTimerUI();
-
-            timerInterval = setInterval(() => {
-                timer -= 0.1;
-                lavaHeight += 0.35; 
-                if (lavaHeight > 75) lavaHeight = 75;
-
-                updateTimerUI();
-                updateStageUI();
-
-                if (timer <= 0) {
-                    clearInterval(timerInterval);
-                    handleUserAnswer(false);
-                }
-            }, 100);
-        }
-
-        function updateTimerUI() {
-            const percent = (timer / QUESTION_TIME) * 100;
-            const bar = document.getElementById('timeBarFill');
-            bar.style.width = `${Math.max(0, percent)}%`;
-            document.getElementById('timerText').textContent = Math.ceil(Math.max(0, timer));
-
-            if (timer < 4) {
-                bar.style.backgroundColor = '#e53935';
-                setBunnyFace('scared');
-            } else {
-                bar.style.backgroundColor = '#4caf50';
+            if (tabName === 'flashcard') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('flashcardView').classList.add('active');
+            } else if (tabName === 'sheet') {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('sheetView').classList.add('active');
+            } else if (tabName === 'wrong') {
+                document.querySelectorAll('.tab-btn')[2].classList.add('active');
+                document.getElementById('wrongView').classList.add('active');
+                renderWrongView();
             }
         }
 
-        function updateStageUI() {
-            let heartsHtml = '';
-            for (let i = 0; i < MAX_HP; i++) {
-                heartsHtml += i < hp ? '❤️' : '🖤';
-            }
-            document.getElementById('hpDisplay').innerHTML = heartsHtml;
-            document.getElementById('lavaLayer').style.height = `${lavaHeight}%`;
-            document.getElementById('bunnyWrapper').style.bottom = `${bunnyBottom}%`;
-        }
-
-        function setBunnyFace(state) {
-            const faceGroup = document.getElementById('bunnyFace');
-            const wrapper = document.getElementById('bunnyWrapper');
-
-            wrapper.classList.remove('anim-happy', 'anim-scared');
-
-            if (state === 'happy') {
-                wrapper.classList.add('anim-happy');
-                faceGroup.innerHTML = `
-                    <path d="M 36 50 Q 40 45 44 50" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M 56 50 Q 60 45 64 50" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round"/>
-                    <ellipse cx="50" cy="61" rx="4" ry="5" fill="#ff5252"/>
-                `;
-            } else if (state === 'scared') {
-                wrapper.classList.add('anim-scared');
-                faceGroup.innerHTML = `
-                    <circle cx="40" cy="50" r="4" fill="#333"/>
-                    <circle cx="60" cy="50" r="4" fill="#333"/>
-                    <ellipse cx="50" cy="62" rx="6" ry="4" fill="#333"/>
-                    <path d="M 68 40 Q 72 45 70 48" fill="none" stroke="#29b6f6" stroke-width="3"/>
-                `;
-            } else {
-                faceGroup.innerHTML = `
-                    <circle cx="40" cy="52" r="3" fill="#333"/>
-                    <circle cx="60" cy="52" r="3" fill="#333"/>
-                    <path d="M 46 60 Q 50 63 54 60" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
-                `;
-            }
-        }
-
-        function handleUserAnswer(isCorrect) {
-            clearInterval(timerInterval);
-
-            const currentWord = currentList[currentIndex];
-
-            if (isCorrect) {
-                playSound('correct');
-                if (isGameStyle) {
-                    setBunnyFace('happy');
-                    lavaHeight = Math.max(10, lavaHeight - 18);
-                    bunnyBottom = Math.min(65, bunnyBottom + 8);
-                }
-            } else {
-                playSound('wrong');
-                if (!wrongList.some(w => w.eng === currentWord.eng)) wrongList.push(currentWord);
-                updateWrongBadge();
-
-                if (isGameStyle) {
-                    setBunnyFace('scared');
-                    hp--;
-                    lavaHeight = Math.min(80, lavaHeight + 22);
-                }
-            }
-
-            if (isGameStyle) {
-                updateStageUI();
-                if (hp <= 0 || lavaHeight >= 70) {
-                    setTimeout(() => triggerGameOver(false), 400);
-                    return;
-                }
-            }
-
-            currentIndex++;
-            if (currentIndex >= currentList.length) {
-                if (isGameStyle) setTimeout(() => triggerGameOver(true), 400);
-                else showToast("🎉 마지막 단어까지 모두 학습했습니다!");
+        /* Flashcard Logic */
+        function renderFlashcard() {
+            if (currentList.length === 0) {
+                document.getElementById('cardQuestion').textContent = "학습할 단어가 없습니다.";
+                document.getElementById('cardAnswer').style.display = 'none';
+                document.getElementById('cardHint').style.display = 'none';
+                document.getElementById('cardNumber').textContent = "0 / 0";
+                document.getElementById('progressBar').style.width = "0%";
                 return;
             }
 
-            setTimeout(() => {
-                if (isGameStyle) setBunnyFace('normal');
-                renderFlashcard();
-            }, isGameStyle ? 600 : 200);
-        }
-
-        function triggerGameOver(isVictory) {
-            clearInterval(timerInterval);
-            const overlay = document.getElementById('gameOverlay');
-            overlay.style.display = 'flex';
-
-            if (isVictory) {
-                document.getElementById('overlayTitle').textContent = "👑 구출 성공!";
-                document.getElementById('overlayDesc').textContent = "모든 단어를 맞히고 토끼를 구했습니다!";
-            } else {
-                document.getElementById('overlayTitle').textContent = "🚨 구출 실패!";
-                document.getElementById('overlayDesc').textContent = "용암이 차올라 토끼가 위험해졌습니다!";
+            if (currentIndex >= currentList.length) {
+                document.getElementById('cardQuestion').textContent = "🎉 퀴즈를 모두 완료했습니다!";
+                document.getElementById('cardHint').textContent = "오답 노트를 확인해 보세요.";
+                document.getElementById('cardAnswer').style.display = 'none';
+                document.getElementById('cardNumber').textContent = `${currentList.length} / ${currentList.length}`;
+                document.getElementById('progressBar').style.width = "100%";
+                return;
             }
-        }
-
-        function renderFlashcard() {
-            if (currentIndex >= currentList.length) return;
 
             const word = currentList[currentIndex];
             isAnswerRevealed = false;
 
             document.getElementById('cardNumber').textContent = `${currentIndex + 1} / ${currentList.length}`;
-            document.getElementById('cardQuestion').textContent = word.eng;
-            document.getElementById('cardAnswer').textContent = word.kor;
+            document.getElementById('progressBar').style.width = `${((currentIndex) / currentList.length) * 100}%`;
+
+            if (quizMode === 'korToEng') {
+                document.getElementById('cardQuestion').textContent = word.kor;
+                document.getElementById('cardAnswer').textContent = word.eng;
+            } else {
+                document.getElementById('cardQuestion').textContent = word.eng;
+                document.getElementById('cardAnswer').textContent = word.kor;
+            }
+
             document.getElementById('cardAnswer').style.display = 'none';
             document.getElementById('cardHint').style.display = 'inline-block';
-
-            if (isGameStyle) startTimer();
+            document.getElementById('cardHint').textContent = "👆 클릭하여 정답 확인하기";
         }
 
         function revealAnswer() {
+            if (currentList.length === 0 || currentIndex >= currentList.length) return;
+
             if (!isAnswerRevealed) {
                 isAnswerRevealed = true;
                 document.getElementById('cardAnswer').style.display = 'block';
@@ -1609,56 +1104,239 @@
         }
 
         function playCurrentAudio() {
-            if (currentList[currentIndex]) {
-                const utter = new SpeechSynthesisUtterance(currentList[currentIndex].eng);
-                utter.lang = 'en-US';
-                window.speechSynthesis.speak(utter);
-            }
+            if (currentList.length === 0 || currentIndex >= currentList.length) return;
+            const word = currentList[currentIndex];
+            speakEnglish(word.eng);
         }
 
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-
-            if (tab === 'flashcard') {
-                document.querySelectorAll('.tab-btn')[0].classList.add('active');
-                document.getElementById('flashcardView').classList.add('active');
-            } else if (tab === 'sheet') {
-                document.querySelectorAll('.tab-btn')[1].classList.add('active');
-                document.getElementById('sheetView').classList.add('active');
+        function speakEnglish(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.88;
+                window.speechSynthesis.speak(utterance);
             } else {
-                document.querySelectorAll('.tab-btn')[2].classList.add('active');
-                document.getElementById('wrongView').classList.add('active');
-                renderWrong();
+                showToast("이 브라우저는 음성 합성을 지원하지 않습니다.");
             }
         }
 
-        function renderSheet() {
-            const tbody = document.getElementById('vocabTableBody');
-            tbody.innerHTML = currentList.map((w, i) => `
-                <tr><td>${i+1}</td><td><b>${w.eng}</b></td><td>${w.kor}</td></tr>
-            `).join('');
+        function markAnswer(isCorrect) {
+            if (currentList.length === 0 || currentIndex >= currentList.length) return;
+
+            const currentWord = currentList[currentIndex];
+
+            if (isCorrect) {
+                playEffectSound('correct');
+                combo++;
+                let gainScore = 10 + Math.floor(combo / 3) * 5; // Combo bonus
+                score += gainScore;
+                addXP(10);
+
+                if (!correctList.some(w => w.eng === currentWord.eng && w.kor === currentWord.kor)) {
+                    correctList.push(currentWord);
+                }
+
+                if (combo >= 2) {
+                    showComboEffect(`🔥 ${combo} COMBO! (+${gainScore}점)`);
+                }
+            } else {
+                playEffectSound('wrong');
+                combo = 0; // Reset combo
+                if (!wrongList.some(w => w.eng === currentWord.eng && w.kor === currentWord.kor)) {
+                    wrongList.push(currentWord);
+                }
+            }
+
+            updateWrongBadge();
+            updateGameStatusUI();
+
+            currentIndex++;
+            renderFlashcard();
         }
 
-        function renderWrong() {
-            const tbody = document.getElementById('wrongTableBody');
-            if (wrongList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">틀린 단어가 없습니다!</td></tr>`;
-                return;
+        function showComboEffect(text) {
+            const effectElem = document.getElementById('comboEffectText');
+            effectElem.textContent = text;
+            effectElem.style.display = 'block';
+            setTimeout(() => { effectElem.style.display = 'none'; }, 1000);
+        }
+
+        /* Gamification Progress */
+        function addXP(amount) {
+            xp += amount;
+            let maxXp = (level + 1) * 50;
+
+            if (xp >= maxXp) {
+                xp -= maxXp;
+                level = Math.min(level + 1, levelTitles.length - 1);
+                playEffectSound('levelup');
+                showToast(`🎉 축하합니다! 레벨업 하셨습니다: [${levelTitles[level]}]`);
             }
-            tbody.innerHTML = wrongList.map((w) => `
-                <tr><td>REVIEW</td><td style="color:var(--wrong-color);"><b>${w.eng}</b></td><td>${w.kor}</td></tr>
-            `).join('');
+        }
+
+        function updateGameStatusUI() {
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('levelDisplay').textContent = levelTitles[level];
+            
+            const comboBadge = document.getElementById('comboBadge');
+            if (combo >= 2) {
+                comboBadge.style.display = 'inline-flex';
+                document.getElementById('comboDisplay').textContent = combo;
+            } else {
+                comboBadge.style.display = 'none';
+            }
+
+            let maxXp = (level + 1) * 50;
+            document.getElementById('xpTextDisplay').textContent = `${xp} / ${maxXp}`;
+            document.getElementById('xpBarFill').style.width = `${(xp / maxXp) * 100}%`;
         }
 
         function updateWrongBadge() {
             document.getElementById('wrongBadge').textContent = `(${wrongList.length})`;
         }
 
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg; t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 2000);
+        /* Full Sheet Render & Filter */
+        function renderSheet() {
+            const tbody = document.getElementById('vocabTableBody');
+            tbody.innerHTML = '';
+
+            const titleElem = document.getElementById('sheetTitle');
+            if (currentUnitKey === 'all') {
+                titleElem.textContent = '전체 유닛 단어장 (총 194단어)';
+            } else {
+                titleElem.textContent = vocabData[currentUnitKey].title;
+            }
+
+            const words = getWordsForUnit(currentUnitKey);
+
+            words.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color: var(--text-muted); font-size: 0.85rem;">${idx + 1}</td>
+                    <td class="eng-word">${escapeHtml(item.eng)}</td>
+                    <td class="kor-mean">${escapeHtml(item.kor)}</td>
+                    <td style="text-align: center;">
+                        <button class="audio-icon-btn" style="width: 32px; height: 32px; margin: 0;" onclick="speakEnglish('${escapeJs(item.eng)}')">
+                            <svg viewBox="0 0 24 24" style="width:16px; height:16px;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterSheet() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#vocabTableBody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        /* Wrong Note Render & Export */
+        function renderWrongView() {
+            document.getElementById('totalWrongCount').textContent = wrongList.length;
+            document.getElementById('totalCorrectCount').textContent = correctList.length;
+
+            const btnRetry = document.getElementById('btnRetryWrong');
+            btnRetry.disabled = wrongList.length === 0;
+
+            const tbody = document.getElementById('wrongTableBody');
+            tbody.innerHTML = '';
+
+            if (wrongList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted); padding: 30px;">틀린 단어가 없습니다. 완벽해요! 👏</td></tr>`;
+                return;
+            }
+
+            wrongList.forEach((item) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color: var(--text-muted); font-size: 0.85rem;">${item.unitTitle || 'UNIT'}</td>
+                    <td class="eng-word" style="color: var(--wrong-color);">${escapeHtml(item.eng)}</td>
+                    <td class="kor-mean">${escapeHtml(item.kor)}</td>
+                    <td style="text-align: center;">
+                        <button class="audio-icon-btn" style="width: 32px; height: 32px; margin: 0;" onclick="speakEnglish('${escapeJs(item.eng)}')">
+                            <svg viewBox="0 0 24 24" style="width:16px; height:16px;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function startWrongOnlyQuiz() {
+            if (wrongList.length === 0) return;
+            currentList = isRandom ? shuffleArray(wrongList) : [...wrongList];
+            currentIndex = 0;
+            switchTab('flashcard');
+            showToast("🔥 틀린 단어들로 오답 재시험을 시작합니다!");
+        }
+
+        function getWrongListFormattedText() {
+            let text = "=============================\n";
+            text += "  📖 [영어 단어장] 오답 노트\n";
+            text += "=============================\n\n";
+
+            wrongList.forEach((item, index) => {
+                text += `${index + 1}. ${item.eng} - ${item.kor}\n`;
+            });
+
+            text += "\n-----------------------------\n";
+            text += `생성 시간: ${new Date().toLocaleString('ko-KR')}\n`;
+            return text;
+        }
+
+        function downloadWrongListText() {
+            if (wrongList.length === 0) {
+                showToast("저장할 오답 내역이 없습니다.");
+                return;
+            }
+
+            const textContent = getWrongListFormattedText();
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `영단어_오답노트_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast("📄 텍스트 파일이 저장되었습니다.");
+        }
+
+        function copyWrongListToClipboard() {
+            if (wrongList.length === 0) {
+                showToast("복사할 오답 내역이 없습니다.");
+                return;
+            }
+
+            const textContent = getWrongListFormattedText();
+            navigator.clipboard.writeText(textContent).then(() => {
+                showToast("📋 오답 노트가 클립보드에 복사되었습니다!");
+            }).catch(() => {
+                showToast("클립보드 복사에 실패했습니다.");
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function escapeJs(str) {
+            return str.replace(/'/g, "\\'");
         }
     </script>
 </body>
